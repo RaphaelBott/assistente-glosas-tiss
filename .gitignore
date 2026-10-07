@@ -1,0 +1,19 @@
+# Ambiente virtual
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Streamlit
+.streamlit/secrets.toml
+
+# VS Code
+.vscode/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Dados sensíveis (se houver)
+*.env
+.env

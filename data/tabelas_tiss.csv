@@ -1,0 +1,8 @@
+codigo,descricao,detalhe
+00,Tabela própria das operadoras,Códigos definidos livremente pelas operadoras para itens não constantes na TUSS.
+18,"Diárias, taxas e gases medicinais","Terminologia TUSS para diárias, taxas e gases medicinais."
+19,"Materiais e Órteses, Próteses e Materiais Especiais (OPME)",Terminologia TUSS para materiais e OPME.
+20,Medicamentos,Terminologia TUSS para medicamentos.
+22,Procedimentos e eventos em saúde,Terminologia TUSS principal para procedimentos e eventos em saúde.
+90,Tabela Própria Pacote Odontológico,Códigos próprios das operadoras para pacotes odontológicos.
+98,Tabela Própria de Pacotes,Códigos próprios das operadoras para pacotes de medicina.

@@ -1,0 +1,8 @@
+codigo,descricao,detalhe
+1,Autorizado,A solicitação foi autorizada pela operadora.
+2,Em análise,A solicitação está em análise pela operadora.
+3,Negado,A solicitação foi negada pela operadora.
+4,Aguardando justificativa técnica do solicitante,A operadora aguarda justificativa técnica do solicitante.
+5,Aguardando documentação do prestador,A operadora aguarda documentação complementar do prestador.
+6,Solicitação cancelada,A solicitação foi cancelada.
+7,Autorizado parcialmente,A solicitação foi parcialmente autorizada pela operadora.

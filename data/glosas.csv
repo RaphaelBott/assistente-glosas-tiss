@@ -1,0 +1,528 @@
+codigo,descricao,categoria,observacao
+1001,Número da carteira inválido.,Beneficiário,Verificar dados cadastrais do beneficiário junto à operadora.
+1002,Número do cartão nacional de saúde inválido.,Beneficiário,Conferir número do CNS no cadastro.
+1003,A admissão do beneficiário no prestador ocorreu antes da inclusão do beneficiário na operadora.,Beneficiário,Confirmar data de inclusão do beneficiário.
+1004,Solicitação anterior à inclusão do beneficiário.,Beneficiário,Confirmar data de inclusão do beneficiário.
+1005,Atendimento anterior à inclusão do beneficiário.,Beneficiário,Confirmar data de inclusão do beneficiário.
+1006,Atendimento após o desligamento do beneficiário.,Beneficiário,Confirmar data de desligamento.
+1007,Atendimento dentro da carência do beneficiário.,Beneficiário,Consultar contrato para verificar carência.
+1008,Assinatura divergente.,Beneficiário,Conferir assinatura do beneficiário na guia.
+1009,Beneficiário com pagamento em aberto.,Beneficiário,Verificar situação financeira do beneficiário junto à operadora.
+1010,Assinatura do titular / responsável inexistente.,Beneficiário,Verificar se a guia está assinada.
+1011,Identificação do beneficiário não consistente.,Beneficiário,Revisar todos os dados de identificação na guia.
+1012,Serviço profissional hospitalar não é coberto pelo plano do beneficiário.,Beneficiário,Verificar cobertura do serviço no contrato.
+1013,Cadastro do beneficiário com problemas.,Beneficiário,Solicitar atualização cadastral à operadora.
+1014,Beneficiário com data de exclusão.,Beneficiário,Verificar data de exclusão.
+1015,Idade do beneficiário acima idade limite.,Beneficiário,Verificar limite de idade do plano.
+1016,Beneficiário com atendimento suspenso.,Beneficiário,Verificar motivo da suspensão.
+1017,Data validade da carteira vencida.,Beneficiário,Solicitar renovação da carteira.
+1018,Empresa do beneficiário suspensa / excluída.,Beneficiário,Verificar situação da empresa contratante.
+1019,Família do beneficiário com atendimento suspenso.,Beneficiário,Verificar situação do grupo familiar.
+1020,Via de cartão do beneficiário cancelada.,Beneficiário,Verificar cancelamento da via.
+1021,Via de cartão do beneficiário não liberada.,Beneficiário,Verificar liberação da via.
+1022,Via de cartão do beneficiário não compatível.,Beneficiário,Conferir compatibilidade da via.
+1023,Nome do titular inválido.,Beneficiário,Conferir nome do titular.
+1024,Plano não existente.,Beneficiário,Verificar se o plano está ativo.
+1025,Beneficiário não possui cobertura para assistência odontológica.,Beneficiário,Verificar contratação odontológica.
+1101,Quantidade de guias informadas no protocolo diferente das cadastradas.,Protocolo,Conferir quantidade de guias enviadas x cadastradas.
+1102,Protocolo é de reapresentação.,Protocolo,Verificar se já houve envio anterior do mesmo protocolo.
+1103,Protocolo não é de reapresentação.,Protocolo,Verificar se a cobrança se trata de reapresentação.
+1104,Valor total do protocolo diferente do valor total das guias.,Protocolo,Conferir valores do protocolo.
+1201,Atendimento fora da vigência do contrato com o credenciado.,Prestador,Consultar vigência do contrato do prestador.
+1202,Número do CNES inválido.,Prestador,Conferir número do CNES do prestador.
+1203,Código prestador inválido.,Prestador,Conferir código do prestador junto à operadora.
+1204,Admissão anterior à inclusão do credenciado na rede.,Prestador,Confirmar data de inclusão do credenciado.
+1205,Admissão após o desligamento do credenciado da rede.,Prestador,Confirmar data de desligamento do credenciado.
+1206,CPF/CNPJ inválido.,Prestador,Conferir CPF ou CNPJ do prestador.
+1207,Credenciado não pertence à rede credenciada.,Prestador,Verificar credenciamento do prestador.
+1208,Solicitação anterior à inclusão do credenciado.,Prestador,Confirmar data de inclusão.
+1209,Solicitação após o desligamento do credenciado.,Prestador,Confirmar data de desligamento.
+1210,Solicitante credenciado não cadastrado.,Prestador,Verificar cadastro do solicitante.
+1211,Assinatura / carimbo do credenciado inexistente.,Prestador,Colher assinatura e carimbo.
+1212,Atendimento / referência fora da vigência do contrato do prestador.,Prestador,Consultar vigência contratual.
+1213,CBO (especialidade) inválido.,Prestador,Conferir CBO do profissional executante.
+1214,Credenciado não habilitado a realizar o procedimento.,Prestador,Verificar habilitação do prestador.
+1215,Credenciado fora da abrangência geográfica do plano.,Prestador,Verificar abrangência do plano.
+1216,Especialidade não cadastrada.,Prestador,Verificar cadastro da especialidade.
+1217,Especialidade não cadastrada para o prestador.,Prestador,Verificar cadastro da especialidade para o prestador.
+1218,Código de prestador incompatível com procedimento / exame cobrado.,Prestador,Conferir compatibilidade prestador x procedimento.
+1301,Tipo guia inválido.,Guia,"Conferir tipo de guia utilizado (consulta, SP/SADT, etc.)."
+1302,Código tipo guia principal e número guias incompatíveis.,Guia,Verificar compatibilidade entre guia principal e demais.
+1303,Não existe o número guia principal informado.,Guia,Verificar numeração da guia principal.
+1304,Cobrança em guia indevida.,Guia,Verificar se a guia correta foi utilizada.
+1305,Item pago em outra guia.,Guia,Verificar duplicidade entre guias.
+1306,Não existe número guia principal e/ou código guia principal.,Guia,Informar guia principal.
+1307,Número da guia inválido.,Guia,Conferir numeração da guia.
+1308,Guia já apresentada.,Guia,Verificar se já houve envio anterior.
+1309,Procedimento contratado não está de acordo com o tipo de guia utilizado.,Guia,Verificar tipo de guia x procedimento.
+1310,Serviço do tipo cirúrgico e invasivo. Equipe médica não informada na guia.,Guia,Informar equipe médica completa.
+1311,Prestador executante não informado.,Guia,Informar prestador executante.
+1312,Prestador contratado não informado.,Guia,Informar prestador contratado.
+1313,Guia com rasura.,Guia,Refazer a guia sem rasuras.
+1314,Guia sem assinatura e/ou carimbo do credenciado.,Guia,Colher assinatura e carimbo.
+1315,Guia sem data do ato cirúrgico.,Guia,Informar data do ato cirúrgico.
+1316,Guia com local de atendimento preenchido incorretamente.,Guia,Corrigir local de atendimento.
+1317,Guia sem data do atendimento.,Guia,Informar data do atendimento.
+1318,Guia com código de serviço preenchido incorretamente.,Guia,Corrigir código de serviço.
+1319,Guia sem assinatura do assistido.,Guia,Colher assinatura do beneficiário.
+1320,Identificação do assistido incompleta.,Guia,Completar dados de identificação.
+1321,Validade da guia expirada.,Guia,Verificar validade da guia.
+1322,Comprovante presencial ou GTO não enviado.,Guia,Enviar comprovante presencial.
+1323,Data preenchida incorretamente.,Guia,Corrigir data informada.
+1401,Acomodação não autorizada.,Autorização,Verificar autorização prévia para acomodação.
+1402,Procedimento não autorizado.,Autorização,Solicitar autorização prévia.
+1403,Não existe informação sobre a senha de autorização do procedimento.,Autorização,Verificar se consta a senha de autorização.
+1404,Não existe guia de autorização relacionada.,Autorização,Vincular guia de autorização.
+1405,Data de validade da senha é anterior à data do atendimento.,Autorização,Verificar validade da senha de autorização.
+1406,Número da senha informado diferente do liberado.,Autorização,Conferir número da senha.
+1407,Serviço solicitado não possui cobertura.,Autorização,Verificar cobertura no contrato do plano.
+1408,Quantidade serviço solicitada acima da autorizada.,Autorização,Conferir quantidade autorizada.
+1409,Quantidade serviço solicitada acima coberta.,Autorização,Verificar cobertura para quantidade cobrada.
+1410,Serviço solicitado em carência.,Autorização,Verificar carência do procedimento no contrato.
+1411,Solicitante não informado.,Autorização,Informar solicitante.
+1412,Problemas no sistema autorizador.,Autorização,Verificar sistema da operadora.
+1413,Acomodação não possui cobertura.,Autorização,Verificar cobertura para o tipo de acomodação.
+1414,Data de validade da senha expirada.,Autorização,Solicitar nova autorização.
+1415,Procedimento não autorizado para o beneficiário.,Autorização,Verificar autorização específica.
+1416,Solicitante não cadastrado.,Autorização,Cadastrar solicitante.
+1417,Solicitante não habilitado.,Autorização,Verificar habilitação do solicitante.
+1418,Solicitante suspenso.,Autorização,Verificar situação do solicitante.
+1419,Serviço solicitado já autorizado.,Autorização,Verificar duplicidade de autorização.
+1420,Serviço solicitado fora da cobertura.,Autorização,Verificar cobertura no rol da ANS.
+1421,Serviço solicitado é de pré-existência.,Autorização,Verificar contrato sobre pré-existência.
+1422,Especialidade não cadastrada para o solicitante.,Autorização,Verificar cadastro da especialidade.
+1423,Quantidade solicitada acima da quantidade permitida.,Autorização,Verificar quantidade permitida.
+1424,Quantidade autorizada acima da quantidade permitida.,Autorização,Verificar limite autorizado.
+1425,Necessita pré-autorização da empresa.,Autorização,Solicitar pré-autorização.
+1426,Não autorizado pela auditoria médica.,Autorização,Contatar auditoria médica.
+1427,Necessidade de auditoria médica.,Autorização,Encaminhar para auditoria médica.
+1428,Falta de autorização da empresa de conectividade.,Autorização,Verificar autorização da empresa.
+1429,CBO-s (especialidade) não autorizado a realizar o serviço.,Autorização,Verificar CBO do profissional.
+1430,Procedimento odontológico não autorizado.,Autorização,Solicitar autorização odontológica.
+1431,Procedimento não autorizado na face solicitada.,Autorização,Verificar face autorizada.
+1432,Procedimento não autorizado para dente/região solicitada.,Autorização,Verificar dente/região autorizada.
+1433,"Procedimento não autorizado, dente ausente.",Autorização,Verificar dente presente.
+1434,Cobrança de conta de CTI neonatal na senha do parto.,Autorização,Verificar autorização específica de CTI.
+1435,Vigência do acordo posterior à data de realização do procedimento.,Autorização,Verificar data do acordo.
+1436,Cancelamento do acordo anterior à data de realização do procedimento.,Autorização,Verificar cancelamento.
+1437,Senha de autorização cancelada.,Autorização,Solicitar nova senha.
+1438,Procedimento solicitado não autorizado por não atender a diretriz de utilização (DUT) do rol de procedimentos e eventos em saúde da ANS.,Autorização,Verificar DUT do procedimento.
+1501,Tempo de evolução da doença inválido.,Clínico,Verificar tempo de evolução.
+1502,Tipo de doença inválido.,Clínico,Verificar classificação da doença.
+1503,Indicador de acidente inválido.,Clínico,Conferir indicador de acidente.
+1504,Caráter de internação inválido.,Clínico,Verificar caráter da internação.
+1505,Regime da internação inválido.,Clínico,Verificar regime da internação.
+1506,Tipo de internação inválido.,Clínico,Verificar tipo de internação.
+1507,Urgência não aplicável.,Clínico,Verificar caracterização de urgência.
+1508,Código CID não informado.,Clínico,Informar CID na guia.
+1509,Código CID inválido.,Clínico,Conferir código CID informado.
+1601,Reincidência no atendimento.,Clínico,Verificar se já houve atendimento anterior.
+1602,Tipo de atendimento inválido ou não informado.,Clínico,Informar tipo correto de atendimento.
+1603,Tipo de consulta inválido.,Clínico,"Conferir tipo de consulta (primeira, retorno, etc.)."
+1604,Tipo de saída inválido.,Clínico,Verificar tipo de saída.
+1605,Intervenção anterior à admissão.,Clínico,Verificar data de intervenção.
+1606,Final da intervenção anterior ao início da intervenção.,Clínico,Verificar datas de intervenção.
+1607,Alta hospitalar anterior ao final da intervenção.,Clínico,Verificar data de alta.
+1608,Alta anterior à data de internação.,Clínico,Verificar datas.
+1609,Motivo saída inválido.,Clínico,Verificar motivo de saída.
+1610,Óbito mulher inválido.,Clínico,Verificar dados de óbito.
+1611,Intervenção anterior a internação.,Clínico,Verificar datas.
+1612,Serviço não pode ser realizado no local especificado.,Clínico,Verificar local de atendimento.
+1613,Consulta não autorizada.,Clínico,Solicitar autorização.
+1614,Serviço ambulatorial não autorizado.,Clínico,Solicitar autorização.
+1615,Internação não autorizada.,Clínico,Solicitar autorização.
+1701,Cobrança fora do prazo de validade.,Financeiro,Verificar prazo contratual de apresentação da cobrança.
+1702,Cobrança de procedimento em duplicidade.,Financeiro,Verificar duplicidade de cobrança.
+1703,Horário do atendimento não está na faixa de urgência/emergência.,Financeiro,Conferir horário registrado x faixa contratual.
+1704,Valor cobrado superior ao acordado em pacote.,Financeiro,Conferir valor do pacote contratado.
+1705,Valor apresentado a maior.,Financeiro,Revisar valor cobrado.
+1706,Valor apresentado a menor.,Financeiro,Revisar valor cobrado.
+1707,Não existe informação sobre a tabela que será utilizada na valoração. Verifique o contrato do prestador.,Financeiro,Verificar tabela de referência no contrato.
+1708,Não existe valor para o procedimento realizado.,Financeiro,Verificar tabela de valores vigente.
+1709,Falta prescrição médica.,Financeiro,Anexar prescrição médica.
+1710,Falta visto da enfermagem.,Financeiro,Colher visto da enfermagem.
+1711,Procedimento pertence a um pacote acordado e já cobrado.,Financeiro,Verificar se o item já está incluso em pacote.
+1712,Assinatura do médico responsável pelo exame inexistente.,Financeiro,Colher assinatura do médico.
+1713,Faturamento inválido.,Financeiro,Revisar dados do faturamento.
+1714,Valor do serviço superior ao valor de tabela.,Financeiro,Conferir valor de tabela.
+1715,Valor do serviço inferior ao valor de tabela.,Financeiro,Conferir valor de tabela.
+1716,Percentual de redução/acréscimo fora dos valores definidos em tabela.,Financeiro,Verificar percentuais contratados.
+1717,Pago conforme relatório de auditoria externa - conta inicial.,Financeiro,Glosa parcial - valor pago conforme auditoria.
+1718,"Reanálise negada, pago conforme relatório auditoria.",Financeiro,Verificar relatório de auditoria.
+1719,"Reanálise negada, análise conforme tabela acordada.",Financeiro,Verificar tabela acordada.
+1720,Liberados 150% de vídeo sem cobertura para adicional de acomodação.,Financeiro,Verificar cobertura de adicional de acomodação.
+1721,Código cobrado substituído pelo código pago.,Financeiro,Glosa por substituição de código.
+1722,Pago conforme negociação.,Financeiro,Valor pago conforme negociação entre as partes.
+1723,Adicional de urgência não previsto para atendimento clínico.,Financeiro,Verificar previsão contratual de adicional.
+1724,Visita médica cobrada pela equipe cirúrgica incluída no período de 10 dias após realização do procedimento cirúrgico.,Financeiro,Verificar prazo de visita médica.
+1725,Valor pago a maior referente à taxa administrativa.,Financeiro,Conferir taxa administrativa.
+1726,Valor apresentado a maior - plano individual.,Financeiro,Verificar valores do plano individual.
+1727,Pago valor compatível com o procedimento.,Financeiro,Valor pago compatível com o procedimento.
+1728,Cobrança de material incluso no procedimento / exame realizado.,Financeiro,Verificar se material está incluso.
+1729,Cobrança de material com valor acima do permitido para procedimento/exame realizado.,Financeiro,Verificar valor do material.
+1730,Filme incluso no exame realizado.,Financeiro,Verificar se filme está incluso.
+1731,Taxa incompatível para atendimento ambulatorial.,Financeiro,Verificar se a taxa é aplicável ao tipo de atendimento.
+1732,QT com data de evento divergente da liberada.,Financeiro,Verificar data da quimioterapia.
+1733,Recuperação de valores por pagamento indevido.,Financeiro,Verificar pagamento indevido.
+1734,"Cobrado conta aberta, pago o pacote conforme negociação.",Financeiro,Verificar pacote negociado.
+1735,Cobrança de pacote não negociado com o prestador.,Financeiro,Verificar negociação de pacote.
+1736,Conta aguardando negociação para pagamento.,Financeiro,Aguardando negociação.
+1737,Diferença deve ser cobrada do beneficiário pelo prestador como franquia.,Financeiro,Cobrar franquia do beneficiário.
+1738,Documento fiscal não enviado.,Financeiro,Anexar documento fiscal.
+1739,Duplicidade de conta devido a período cobrado já efetuado em outra parcial.,Financeiro,Verificar duplicidade entre parciais.
+1740,Estorno do valor de procedimento pago.,Financeiro,Verificar estorno realizado.
+1741,Honorário ou procedimento já pago a outro prestador.,Financeiro,Verificar duplicidade entre prestadores.
+1742,Honorário ou procedimento já pago por reembolso ao beneficiário.,Financeiro,Verificar reembolso anterior.
+1743,"Não há negociação para cobrança do kit, discriminar por itens.",Financeiro,Discriminar itens do kit.
+1744,Negociação diferenciada devido a liminar.,Financeiro,Verificar liminar judicial.
+1745,Pagamento da equipe conforme relatório do cirurgião.,Financeiro,Verificar relatório do cirurgião.
+1746,Percentual de acréscimo diferente do negociado.,Financeiro,Conferir percentual negociado.
+1747,Plano do beneficiário e o tipo de acomodação não permitem acréscimo de honorários.,Financeiro,Verificar contrato do plano.
+1748,Procedimento não caracteriza urgência/emergência.,Financeiro,Revisar justificativa de urgência.
+1749,Relatório de auditoria não enviado na conta.,Financeiro,Anexar relatório de auditoria.
+1801,Procedimento inválido.,Procedimento,Conferir código do procedimento.
+1802,Procedimento incompatível com o sexo do beneficiário.,Procedimento,Conferir procedimento x sexo.
+1803,Idade do beneficiário incompatível com o procedimento.,Procedimento,Conferir idade x procedimento.
+1804,Número de dias liberados / sessões autorizadas não informadas.,Procedimento,Informar quantidade autorizada.
+1805,Valor total do procedimento diferente do valor processado.,Procedimento,Verificar valor do procedimento.
+1806,Quantidade de procedimento deve ser maior que zero.,Procedimento,Verificar quantidade cobrada.
+1807,Procedimentos médicos duplicados.,Procedimento,Verificar duplicidade na mesma guia.
+1808,Procedimento não conforme com CID.,Procedimento,Verificar correlação CID x procedimento.
+1809,Cobrança de procedimento não executado.,Procedimento,Verificar execução real do procedimento.
+1810,Cobrança de procedimento não solicitado pelo médico.,Procedimento,Verificar prescrição médica.
+1811,Procedimento sem registro de execução.,Procedimento,Registrar execução do procedimento.
+1812,Cobrança de procedimento não correlacionado ao relatório específico.,Procedimento,Anexar relatório específico.
+1813,Cobrança de procedimento sem justificativa para realização ou com justificativa insuficiente.,Procedimento,Anexar justificativa técnica.
+1814,Cobrança de procedimento com data de autorização posterior à do atendimento.,Procedimento,Verificar data de autorização.
+1815,Procedimento não autorizado.,Procedimento,Solicitar autorização prévia.
+1816,Cobrança de procedimento em quantidade incompatível com o procedimento/evolução clínica.,Procedimento,Verificar quantidade x evolução.
+1817,Cobrança de procedimento incluso no procedimento principal.,Procedimento,Verificar se está incluso.
+1818,Cobrança de procedimento que exige autorização prévia.,Procedimento,Solicitar autorização.
+1819,Cobrança de procedimento com história clínica/hipótese diagnóstica não compatível.,Procedimento,Verificar história clínica.
+1820,Cobrança de procedimento em quantidade acima da máxima permitida/autorizada.,Procedimento,Verificar quantidade máxima.
+1821,Cobrança de procedimento não compatível com a idade.,Procedimento,Verificar idade x procedimento.
+1822,Cobrança de procedimento com ausência de resultado ou laudo técnico.,Procedimento,Anexar laudo técnico.
+1823,"Procedimento realizado pelo mesmo profissional, na mesma especialidade, no prazo inferior ao estipulado sem justificativa adequada.",Procedimento,Verificar intervalo mínimo.
+1824,Procedimento cobrado não corresponde ao exame executado.,Procedimento,Verificar correspondência.
+1825,Cobrança de procedimento ambulatorial com data de autorização posterior à do atendimento.,Procedimento,Verificar data de autorização.
+1826,Vias de acesso dos procedimentos cobrados não estão previstas na listagem de procedimentos múltiplos.,Procedimento,Verificar vias de acesso.
+1827,"Cobrança de outro procedimento em outra guia, na mesma data, pelo mesmo profissional com mesmo grau de participação - liberado valor referente à via de acesso do procedimento secundário.",Procedimento,Verificar cobrança entre guias.
+1828,Adicional de urgência não previsto para procedimento cirúrgico eletivo.,Procedimento,Verificar previsão contratual.
+1829,Adicional de vídeo não previsto para o procedimento.,Procedimento,Verificar previsão contratual.
+1830,"Cobrança de procedimento sem informação das datas de atendimento - visita, plantão, intensivista, avaliação enteral/parenteral.",Procedimento,Informar datas de atendimento.
+1831,Laudo do exame enviado não justifica a cobrança do procedimento.,Procedimento,Revisar laudo.
+1832,Procedimento não permite cobrança de auxiliar de anestesista.,Procedimento,Verificar previsão contratual.
+1833,Procedimento cobrado não permite acréscimo de acomodação.,Procedimento,Verificar previsão contratual.
+1834,Porte anestésico cobrado incompatível com o porte do procedimento realizado.,Procedimento,Verificar porte anestésico.
+1835,"Analogia por dia subsequente não justificada em relatório médico, para o procedimento realizado e/ou data do atendimento.",Procedimento,Anexar justificativa médica.
+1836,Analogia por dia subsequente incompatível com a via de administração do medicamento.,Procedimento,Verificar via de administração.
+1837,Não cabe pagamento do honorário integral por ser via de acesso cirúrgico diferente.,Procedimento,Verificar via de acesso.
+1838,Grau de participação informado incompatível com evento cobrado.,Procedimento,Verificar grau de participação.
+1839,Necessário envio do resultado do exame anátomo patológico.,Procedimento,Anexar resultado de exame.
+1840,Procedimento executado antes da autorização.,Procedimento,Verificar ordem cronológica.
+1901,Acomodação inválida.,Internação,Conferir tipo de acomodação.
+1902,Acomodação informada não está de acordo com acomodação contratada.,Internação,Verificar contrato.
+1903,Permanência hospitalar incompatível com a evolução clínica.,Internação,Revisar evolução clínica.
+1904,Permanência hospitalar incompatível com o procedimento autorizado.,Internação,Verificar procedimento autorizado.
+1905,Quantidade de diárias deve ser maior que zero.,Internação,Verificar quantidade de diárias.
+1906,Acomodação não informada.,Internação,Informar acomodação.
+1907,Quantidade UTI não prevista para procedimento.,Internação,Verificar previsão de UTI no procedimento.
+1908,Usuário não possui cobertura de UTI.,Internação,Verificar cobertura contratual.
+1909,Acomodação não autorizada.,Internação,Solicitar autorização de acomodação.
+1910,"Cobrança de diárias em locais de acomodações diferentes, no mesmo dia.",Internação,Verificar diárias do dia.
+1911,Permanência hospitalar para investigação injustificada.,Internação,Revisar justificativa.
+1912,Evolução clínica não compatível com a permanência em UTI.,Internação,Revisar evolução clínica.
+1913,Código de diária incompatível com o local de atendimento.,Internação,Verificar código de diária.
+1914,Cobrança de diária em quantidade incompatível com a permanência hospitalar.,Internação,Verificar quantidade x permanência.
+1915,"Mudança de acomodação sem comunicação ao paciente, familiar ou acompanhante, ou sem solicitação destes.",Internação,Verificar comunicação de mudança.
+1916,Cobrança de diárias de UTI incompatível com diagnóstico e evolução clínica.,Internação,Revisar justificativa de UTI.
+1917,Falta prorrogação para quantidade de diárias cobradas.,Internação,Solicitar prorrogação.
+1918,Plano do beneficiário não contempla diária de acompanhante.,Internação,Verificar cobertura de acompanhante.
+2001,Material inválido.,Material,Conferir código do material.
+2002,Material sem cobertura para atendimento ambulatorial.,Material,Verificar cobertura ambulatorial.
+2003,Material não especificado.,Material,Especificar material utilizado.
+2004,Material sem nota fiscal do fornecedor.,Material,Anexar nota fiscal.
+2005,Quantidade de material deve ser maior que zero.,Material,Verificar quantidade.
+2006,Material informado não coberto.,Material,Verificar cobertura do material.
+2007,Cobrança de material em quantidade incompatível com a permanência.,Material,Verificar quantidade x permanência.
+2008,Cobrança de material em quantidades incompatíveis com o procedimento realizado.,Material,Verificar quantidade x procedimento.
+2009,Quantidade de material superior à quantidade coberta.,Material,Verificar quantidade coberta.
+2010,Cobrança de materiais inclusos nas taxas.,Material,Verificar se material está incluso em taxas.
+2011,Cobrança de material incluso no pacote negociado.,Material,Verificar pacote negociado.
+2012,Cobrança de material incompatível com o relatório técnico.,Material,Revisar relatório técnico.
+2013,Cobrança de material em permanência hospitalar não autorizada.,Material,Verificar autorização de permanência.
+2014,Cobrança de material não utilizado.,Material,Verificar uso real do material.
+2015,Material não autorizado.,Material,Solicitar autorização.
+2101,Medicamento inválido.,Medicamento,Conferir código do medicamento.
+2102,Medicamento sem cobertura para atendimento ambulatorial.,Medicamento,Verificar cobertura ambulatorial.
+2103,Medicamento não especificado.,Medicamento,Especificar medicamento utilizado.
+2104,Medicamento sem nota fiscal do fornecedor.,Medicamento,Anexar nota fiscal.
+2105,Quantidade de medicamentos deve ser maior que zero.,Medicamento,Verificar quantidade.
+2106,Medicamento informado não coberto.,Medicamento,Verificar cobertura do medicamento.
+2107,Cobrança de medicamento em quantidade incompatível com a permanência.,Medicamento,Verificar quantidade x permanência.
+2108,Cobrança de medicamento em quantidades incompatíveis com o procedimento realizado.,Medicamento,Verificar quantidade x procedimento.
+2109,Quantidade de medicamento superior à quantidade coberta.,Medicamento,Verificar quantidade coberta.
+2110,Cobrança de medicamentos inclusos nas taxas.,Medicamento,Verificar se medicamento está incluso em taxas.
+2111,Cobrança de medicamento incluso no pacote negociado.,Medicamento,Verificar pacote negociado.
+2112,Cobrança de medicamento incompatível com o relatório técnico.,Medicamento,Revisar relatório técnico.
+2113,Cobrança de medicamento em permanência hospitalar não autorizada.,Medicamento,Verificar autorização de permanência.
+2114,Cobrança de medicamento não utilizado.,Medicamento,Verificar uso real do medicamento.
+2115,Medicamento não autorizado.,Medicamento,Solicitar autorização.
+2201,OPME inválido.,OPME,Conferir código do OPME.
+2202,OPME sem cobertura para atendimento ambulatorial.,OPME,Verificar cobertura ambulatorial.
+2203,OPME sem nota fiscal do fornecedor.,OPME,Anexar nota fiscal.
+2204,Quantidade de OPME deve ser maior que zero.,OPME,Verificar quantidade.
+2205,OPME informado não coberto.,OPME,Verificar cobertura.
+2206,OPME informado não autorizado.,OPME,Solicitar autorização.
+2207,Cobrança de OPME não utilizado.,OPME,Verificar uso real.
+2208,Cobrança de OPME no item material e medicamentos.,OPME,Verificar classificação correta.
+2209,Cobrança de OPME em desacordo com relatório técnico.,OPME,Revisar relatório técnico.
+2210,Cobrança de OPME em quantidade incompatível com o procedimento realizado.,OPME,Verificar quantidade x procedimento.
+2211,Cobrança de OPME inclusa no pacote.,OPME,Verificar pacote negociado.
+2212,OPME em desacordo com os critérios técnicos adotados pela operadora.,OPME,Revisar critérios técnicos.
+2213,OPME pago a fornecedor terceirizado.,OPME,Verificar fornecedor.
+2301,Gases medicinais inválidos.,Gases,Conferir código do gás medicinal.
+2302,Cobrança de oxigenoterapia sem prescrição médica.,Gases,Anexar prescrição médica.
+2303,Cobrança de oxigenoterapia com quantitativo de uso em divergência/pago valor corrigido.,Gases,Verificar quantitativo.
+2304,Cobrança de oxigênio incluso na taxa de nebulização especificada.,Gases,Verificar se está incluso.
+2305,Cobrança de oxigenoterapia em uso prolongado sem justificativa de uso.,Gases,Anexar justificativa.
+2306,Cobrança de oxigenoterapia sem registro de controle de uso (entrada e saída).,Gases,Anexar registro de uso.
+2307,Cobrança de gases em quantidade superior ao período de permanência.,Gases,Verificar quantidade x permanência.
+2308,Cobrança de CO2 nas cirurgias videolaparoscópicas durante toda a realização do procedimento.,Gases,Verificar critério de cobrança.
+2309,Cobrança de ar comprimido sem registro no boletim anestésico e duração de uso.,Gases,Anexar boletim anestésico.
+2310,Cobrança de gases incompatível com o utilizado/prescrito.,Gases,Verificar prescrição.
+2401,Taxa / aluguel inválido.,Taxa,Conferir código da taxa.
+2402,Cobrança de taxa por uso de equipamento incompatível com o procedimento realizado/uso previsto no procedimento.,Taxa,Verificar compatibilidade.
+2403,Cobrança de taxa de uso de bomba de infusão em paciente internado na UTI.,Taxa,Verificar se a taxa está inclusa na UTI.
+2404,Cobrança de outras taxas associadas/inclusas na cobrança da taxa de sala prevista.,Taxa,Verificar inclusão.
+2405,"Cobrança de mais de uma taxa de sala de cirurgia, por conta do número de procedimentos realizados no mesmo tempo cirúrgico.",Taxa,Verificar cobrança de sala.
+2406,Cobrança indevida de taxa de sala por administração de medicamentos.,Taxa,Verificar tipo de procedimento.
+2407,"Cobrança de taxas, de serviços realizados em ambientes incompatíveis com o uso de equipamentos.",Taxa,Verificar ambiente x equipamento.
+2408,Cobrança de taxas em quantidade superior ao tempo de permanência hospitalar.,Taxa,Verificar quantidade x permanência.
+2409,Cobrança de taxa de observação em pronto socorro com permanência menor que o período estipulado.,Taxa,Verificar período de permanência.
+2410,Cobrança de taxa de observação em pronto socorro sem o registro da permanência.,Taxa,Anexar registro de permanência.
+2411,"Cobrança de taxa de sala de pronto socorro, para aplicação de medicamentos.",Taxa,Verificar tipo de procedimento.
+2412,Cobrança de taxa de recuperação anestésica não justificada para o procedimento.,Taxa,Verificar justificativa.
+2413,Cobrança de taxa inclusa no pacote negociado.,Taxa,Verificar pacote negociado.
+2414,Cobrança de taxa de equipamento em concomitância com a cobrança de taxa para o procedimento.,Taxa,Verificar concomitância.
+2415,Taxa exige informação do valor na guia.,Taxa,Informar valor na guia.
+2416,Cobrança de taxa de recuperação anestésica para pacientes com pós-operatório imediato realizado na UTI/CTI.,Taxa,Verificar local de recuperação.
+2417,Cobrança de taxa de recuperação anestésica sem a presença do anestesista.,Taxa,Verificar presença do anestesista.
+2418,Cobrança de taxa de sala incompatível com o procedimento.,Taxa,Verificar compatibilidade.
+2419,Cobrança de taxa de observação para atendimento que gerou uma internação.,Taxa,Verificar se gerou internação.
+2420,Cobrança de taxa de sala cirúrgica com porte anestésico diferente do procedimento autorizado/realizado.,Taxa,Verificar porte anestésico.
+2421,Cobrança de taxa em quantidade incorreta.,Taxa,Verificar quantidade.
+2422,"Cobrança de taxa por uso de equipamento de uso obrigatório na sala de cirurgia, cuja taxa de sala cirúrgica já inclui seu uso.",Taxa,Verificar inclusão.
+2423,Cobrança de taxa de equipamentos de uso obrigatório no local de atendimento.,Taxa,Verificar inclusão.
+2424,Cobrança de taxa de observação para atendimento que gerou uma internação.,Taxa,Verificar se gerou internação.
+2501,Procedimento em série inválido.,Série,Conferir código do procedimento seriado.
+2502,Cobrança de duas avaliações fisioterápicas.,Série,Verificar quantidade de avaliações.
+2503,"Cobrança de psicoterapia individual, quando o aplicado é a cobrança de psicoterapia em grupo.",Série,Verificar modalidade.
+2504,Quantidade de sessões cobradas não condizem com as assinaturas no controle de tratamento seriado.,Série,Verificar controle de sessões.
+2505,O código cobrado é diferente do código autorizado.,Série,Verificar código autorizado.
+2506,A quantidade de sessões cobradas é diferente da quantidade autorizada.,Série,Verificar quantidade autorizada.
+2507,O código autorizado está incompatível com a prescrição médica solicitada.,Série,Verificar prescrição médica.
+2508,"Cobrança de sessões sem o devido plano de tratamento e, ou, com o prazo de pagamento expirado.",Série,Anexar plano de tratamento.
+2509,Cobrança do procedimento seriado incompatível com o quadro clínico.,Série,Revisar quadro clínico.
+2510,Cobrança do procedimento seriado em número de sessões acima da quantidade estabelecida.,Série,Verificar limite de sessões.
+2511,Ausência de evolução no prontuário médico do tratamento seriado realizado.,Série,Anexar evolução no prontuário.
+2512,Cobrança de sessões de fisioterapia em desacordo com as evoluções do prontuário médico.,Série,Verificar evoluções.
+2513,Cobrança de tratamento seriado sem justificativa clínica/técnica.,Série,Anexar justificativa.
+2514,Serviço não contratado para o prestador.,Série,Verificar contrato do prestador.
+2515,Local de atendimento inadequado.,Série,Verificar local de atendimento.
+2516,Quantidade cobrada diferente da realizada.,Série,Verificar quantidade realizada.
+2601,Codificação incorreta/inadequada do procedimento.,Honorário,Revisar codificação.
+2602,Cobrança de honorário incluso no procedimento principal.,Honorário,Verificar se honorário já está incluso.
+2603,Cobrança de honorário sem registro da efetiva participação do profissional.,Honorário,Registrar participação do profissional.
+2604,Procedimento principal não requer equipe médica.,Honorário,Verificar necessidade de equipe.
+2605,Não cabe pagamento do honorário integral por ser a mesma via de acesso cirúrgico.,Honorário,Verificar via de acesso.
+2606,Cobrança do honorário em local de atendimento incorreto (inexistente).,Honorário,Verificar local de atendimento.
+2607,Cobrança de honorários em duplicidade.,Honorário,Verificar duplicidade.
+2608,"Cobrança de consulta indevida, quando o procedimento principal já está sendo remunerado.",Honorário,Verificar se está incluso.
+2609,Local de atendimento não informado.,Honorário,Informar local de atendimento.
+2610,Grau de participação de auxiliar incompatível com procedimento cobrado.,Honorário,Verificar grau de participação.
+2611,Cobrança de especialista não justificada no evento.,Honorário,Justificar especialista.
+2612,"Cobrança indevida de equipe stand-by, já que angioplastia seguida de cirurgia cardíaca.",Honorário,Verificar equipe stand-by.
+2613,Honorário médico do anestesista já liberado no procedimento cirúrgico.,Honorário,Verificar cobrança do anestesista.
+2614,Cobrança de cada participante da equipe deve ser feita em guias diferentes.,Honorário,Separar guias por profissional.
+2701,Procedimento inválido.,Exame,Conferir código do exame.
+2702,Cobrança de exame não solicitado pelo médico.,Exame,Verificar solicitação médica.
+2703,Exame sem registro de execução.,Exame,Registrar execução do exame.
+2704,Cobrança de exame não correlacionado ao relatório específico.,Exame,Anexar relatório específico.
+2705,Cobrança de procedimento/exame sem justificativa para realização ou com justificativa insuficiente.,Exame,Anexar justificativa.
+2706,Cobrança de procedimento/exame com data de autorização posterior à do atendimento.,Exame,Verificar data de autorização.
+2707,Exame não autorizado.,Exame,Solicitar autorização.
+2708,Cobrança de exame em quantidade incompatível com o procedimento/evolução clínica.,Exame,Verificar quantidade.
+2709,Cobrança de procedimento incluso no procedimento principal.,Exame,Verificar se está incluso.
+2710,Cobrança de exame que exige autorização prévia.,Exame,Solicitar autorização.
+2711,Cobrança de exame com história clínica/hipótese diagnóstica não compatível.,Exame,Verificar história clínica.
+2712,Cobrança de exame em quantidade acima da máxima permitida/autorizada.,Exame,Verificar quantidade máxima.
+2713,Cobrança de exame não compatível com a idade.,Exame,Verificar idade.
+2714,Cobrança de exame com ausência de resultado ou laudo técnico.,Exame,Anexar laudo técnico.
+2715,"Exame realizado pelo mesmo profissional, na mesma especialidade, no prazo inferior ao estipulado sem justificativa adequada.",Exame,Verificar intervalo mínimo.
+2716,Exame cobrado não corresponde ao exame executado.,Exame,Verificar correspondência.
+2717,Cobrança de exame ambulatorial com data de autorização posterior à do atendimento.,Exame,Verificar data de autorização.
+2718,Exames não justificam caráter de urgência.,Exame,Revisar justificativa de urgência.
+2801,Pacote inválido.,Pacote,Conferir código do pacote.
+2802,Pacote incompatível com o sexo do beneficiário.,Pacote,Conferir pacote x sexo.
+2803,Idade do beneficiário incompatível com o pacote.,Pacote,Conferir idade x pacote.
+2804,Valor total do pacote diferente do valor processado.,Pacote,Verificar valor do pacote.
+2805,Valor do pacote superior ao valor dos itens.,Pacote,Revisar valor do pacote.
+2806,Cobrança de pacote não executado.,Pacote,Verificar execução do pacote.
+2807,Cobrança de pacote não solicitado pelo médico.,Pacote,Verificar solicitação médica.
+2808,Pacote sem registro de execução.,Pacote,Registrar execução do pacote.
+2809,Cobrança de pacote não correlacionado ao relatório específico.,Pacote,Anexar relatório específico.
+2810,Cobrança de pacote sem justificativa para realização ou com justificativa insuficiente.,Pacote,Anexar justificativa.
+2811,Cobrança de pacote com data de autorização posterior à do atendimento.,Pacote,Verificar data de autorização.
+2812,Pacote não autorizado.,Pacote,Solicitar autorização.
+2813,Cobrança de pacote em quantidade incompatível com o procedimento/evolução clínica.,Pacote,Verificar quantidade.
+2814,Itens de composição do pacote não realizados.,Pacote,Verificar itens realizados.
+2815,Cobrança do pacote exige autorização prévia.,Pacote,Solicitar autorização.
+2816,Cobrança de pacote com história clínica/hipótese diagnóstica não compatível.,Pacote,Verificar história clínica.
+2817,Cobrança de pacote em quantidade acima da máxima permitida/autorizada.,Pacote,Verificar quantidade máxima.
+2818,Cobrança de pacote não compatível com a idade.,Pacote,Verificar idade.
+2819,Cobrança de pacote com ausência de resultado ou laudo técnico.,Pacote,Anexar laudo técnico.
+2820,"Pacote realizado pelo mesmo profissional, na mesma especialidade, no prazo inferior ao estipulado sem justificativa adequada.",Pacote,Verificar intervalo mínimo.
+2821,Pacote cobrado não corresponde ao exame executado.,Pacote,Verificar correspondência.
+2822,Cobrança de pacote ambulatorial com data de autorização posterior à do atendimento.,Pacote,Verificar data de autorização.
+2901,Revisão de glosa inválida.,Recurso,Conferir se o recurso foi enviado corretamente.
+2902,Glosa mantida.,Recurso,Glosa foi analisada e mantida pela operadora.
+2903,Pedido de revisão sem justificativa.,Recurso,Anexar justificativa técnica.
+2904,Mais de um recurso de glosa para a mesma guia/protocolo.,Recurso,Verificar duplicidade de recurso.
+2905,A guia não é de revisão.,Recurso,Verificar tipo de guia para recurso.
+2906,Número da guia inválido.,Recurso,Conferir número da guia.
+2907,Prazo de 180 dias ultrapassado para solicitação de reanálise.,Recurso,Verificar prazo regulatório.
+2908,Solicitação de reanálise efetuada de forma incorreta.,Recurso,Verificar formato da solicitação.
+2909,Prazo para solicitação de recurso de glosa prescrito.,Recurso,Verificar prazo de recurso.
+3001,Procedimento odontológico inválido.,Odontologia,Conferir código odontológico.
+3002,Cobrança de procedimento odontológico que exige autorização prévia.,Odontologia,Solicitar autorização.
+3003,Idade do beneficiário incompatível com o procedimento odontológico.,Odontologia,Verificar idade.
+3004,Cobrança de procedimento odontológico em quantidade acima da máxima permitida/autorizada.,Odontologia,Verificar quantidade.
+3005,Valor total do procedimento diferente do valor processado.,Odontologia,Verificar valor.
+3006,Quantidade de procedimento deve ser maior que zero.,Odontologia,Verificar quantidade.
+3007,Procedimentos odontológicos duplicados.,Odontologia,Verificar duplicidade.
+3008,Cobrança de procedimento odontológico incluso no procedimento principal.,Odontologia,Verificar se está incluso.
+3009,Cobrança de procedimento odontológico não executado.,Odontologia,Verificar execução.
+3010,Cobrança de procedimento não solicitado pelo cirurgião-dentista.,Odontologia,Verificar solicitação.
+3011,Procedimento odontológico sem registro de execução.,Odontologia,Registrar execução.
+3012,Cobrança de procedimento odontológico não correlacionado ao relatório específico.,Odontologia,Anexar relatório.
+3013,Cobrança de procedimento odontológico sem justificativa para realização ou com justificativa insuficiente.,Odontologia,Anexar justificativa.
+3014,Cobrança de procedimento odontológico com data de autorização posterior à do atendimento.,Odontologia,Verificar data de autorização.
+3015,Cobrança de procedimento odontológico com ausência de resultado ou laudo técnico.,Odontologia,Anexar laudo técnico.
+3016,"Procedimento odontológico realizado pelo mesmo profissional, na mesma especialidade, no prazo inferior ao estipulado sem justificativa adequada.",Odontologia,Verificar intervalo mínimo.
+3017,Procedimento cobrado não corresponde a perícia (especificar).,Odontologia,Verificar procedimento.
+3018,Evento glosado por auditoria (especificar).,Odontologia,Solicitar detalhamento à operadora.
+3019,"Evento sob análise técnica, aguardando liberação de confirmação para posterior pagamento.",Odontologia,Aguardar análise.
+3020,"Conforme documentação radiográfica enviada, evento realizado inadequadamente.",Odontologia,Revisar documentação.
+3021,Falha em informação de dados de arcadas/hemi-arcos.,Odontologia,Corrigir dados.
+3022,Falha em informação de dados de dente inicial e/ou final.,Odontologia,Corrigir dados.
+3023,Falha em informação de dados de faces dos dentes.,Odontologia,Corrigir dados.
+3024,Evento só possível em dentes decíduos.,Odontologia,Verificar dentição.
+3025,Evento só possível em dentes permanentes.,Odontologia,Verificar dentição.
+3026,Erro nas informações de ordem dos dentes inicial e final.,Odontologia,Corrigir ordem.
+3027,Desacordo entre o tipo de dente e o número de canais solicitados.,Odontologia,Verificar canais.
+3028,Evento restrito à especialistas.,Odontologia,Verificar especialidade.
+3029,Evento não indicado pela auditoria inicial.,Odontologia,Revisar auditoria.
+3030,Auditoria final consta que a restauração foi realizada em outro material.,Odontologia,Revisar material.
+3031,Radiografia fora dos padrões técnicos.,Odontologia,Refazer radiografia.
+3032,Intervalo da última MPP inferior a três meses.,Odontologia,Verificar intervalo.
+3033,Intervalo da última MPP inferior a quatro meses.,Odontologia,Verificar intervalo.
+3034,Justificativa tecnicamente não satisfatória.,Odontologia,Revisar justificativa.
+3035,Paciente em tratamento com o mesmo profissional.,Odontologia,Verificar tratamento em andamento.
+3036,Paciente em tratamento com outro profissional.,Odontologia,Verificar tratamento em andamento.
+3037,Procedimento cobrado não é igual ao executado.,Odontologia,Verificar correspondência.
+3038,Radiografia inicial incongruente com a radiografia final.,Odontologia,Revisar radiografias.
+3039,Radiografia não corresponde ao procedimento cobrado.,Odontologia,Revisar radiografia.
+3040,Glosa técnica (especificar detalhadamente).,Odontologia,Solicitar detalhamento à operadora.
+3041,Aguardando documentação de ortodontia.,Odontologia,Aguardar análise.
+3042,Após análise da radiografia inicial verificou-se exodontia de incluso.,Odontologia,Revisar radiografia.
+3043,Após análise da radiografia inicial verificou-se exodontia de semi-incluso.,Odontologia,Revisar radiografia.
+3044,Após análise da radiografia inicial verificou-se exodontia simples.,Odontologia,Revisar radiografia.
+3045,"Após análise da radiografia inicial, verificou-se exodontia de fragmento radicular.",Odontologia,Revisar radiografia.
+3046,Auditoria final consta que o procedimento foi realizado com outro material.,Odontologia,Revisar material.
+3047,Ausência de imagem/foto/radiografia/diagnóstico pós-procedimento odontológico.,Odontologia,Anexar documentação.
+3048,Cancelamento do procedimento odontológico por solicitação do beneficiário.,Odontologia,Verificar cancelamento.
+3049,Cancelamento do procedimento odontológico por solicitação do prestador.,Odontologia,Verificar cancelamento.
+3050,Cobrança de urgência/emergência na vigência do tratamento odontológico.,Odontologia,Verificar vigência do tratamento.
+3051,Documentação em análise.,Odontologia,Aguardar análise.
+3052,"Documentação incompleta, incorreta ou ausente.",Odontologia,Complementar documentação.
+3053,Elementos podem ser visualizados em uma mesma película.,Odontologia,Revisar radiografia.
+3054,Identificado conduto(s) não obturado(s).,Odontologia,Revisar tratamento endodôntico.
+3055,Identificado tratamento endodôntico e não retratamento.,Odontologia,Verificar tratamento.
+3056,Na auditoria foi constatada divergência na quantidade de faces restauradas.,Odontologia,Revisar quantidade de faces.
+3057,Não apresenta a quantidade mínima de elementos dentários por segmento.,Odontologia,Verificar segmento.
+3058,Necessária auditoria final.,Odontologia,Aguardar auditoria.
+3059,Necessária auditoria inicial.,Odontologia,Aguardar auditoria.
+3060,Necessária auditoria intermediária.,Odontologia,Aguardar auditoria.
+3061,Necessária avaliação do especialista.,Odontologia,Encaminhar ao especialista.
+3062,Necessário enviar laudo ou relatório técnico sobre o tratamento solicitado.,Odontologia,Anexar laudo.
+3063,O plano de tratamento autorizado será cancelado devido à troca de profissional.,Odontologia,Verificar troca de profissional.
+3064,Procedimento autorizado apenas para dentes tratados endodonticamente.,Odontologia,Verificar dente tratado.
+3065,Procedimento autorizado somente para dentes anteriores.,Odontologia,Verificar dente.
+3066,Procedimento em desacordo com o anexo guia tratamento odontológico situação inicial.,Odontologia,Verificar anexo.
+3067,Radiografia final não enviada.,Odontologia,Enviar radiografia final.
+3068,Radiografia final sem dissociação dos condutos.,Odontologia,Refazer radiografia.
+3069,Radiografia indica a necessidade de tratamento endodôntico.,Odontologia,Revisar tratamento.
+3070,Radiografia indica a presença de raiz residual no alvéolo.,Odontologia,Revisar radiografia.
+3071,Radiografia indica ausência de núcleo.,Odontologia,Revisar radiografia.
+3072,Radiografia indica canal (ais) não obturado(s).,Odontologia,Revisar radiografia.
+3073,Radiografia indica desvio da trajetória do canal.,Odontologia,Revisar radiografia.
+3074,Radiografia indica excesso de material.,Odontologia,Revisar radiografia.
+3075,Radiografia indica falha na obturação do(s) conduto(s).,Odontologia,Revisar radiografia.
+3076,Radiografia indica falta de adaptação da coroa/núcleo.,Odontologia,Revisar radiografia.
+3077,Radiografia indica falta de adaptação da coroa/peça protética.,Odontologia,Revisar radiografia.
+3078,Radiografia indica núcleo inadequado.,Odontologia,Revisar radiografia.
+3079,Radiografia indica tratamento endodôntico e não retratamento endodôntico.,Odontologia,Revisar tratamento.
+3080,Radiografia inicial e final não enviada.,Odontologia,Enviar radiografias.
+3081,Radiografia inicial não enviada.,Odontologia,Enviar radiografia.
+3082,Radiografia/imagem indica falha na restauração.,Odontologia,Revisar restauração.
+3083,"Reavaliar o plano de tratamento observando critérios de indicação, oportunidade e viabilidade.",Odontologia,Reavaliar plano.
+3084,Relatório análise técnica sem carimbo/assinatura do prestador.,Odontologia,Colher assinatura/carimbo.
+3085,Radiografia não corresponde ao procedimento solicitado.,Odontologia,Revisar radiografia.
+3086,Tratamento odontológico não caracterizado como urgência.,Odontologia,Revisar justificativa.
+5001,Mensagem eletrônica fora do Padrão TISS.,Técnico,Verificar conformidade com Padrão TISS.
+5002,Não foi possível validar o arquivo XML.,Técnico,Verificar estrutura do XML.
+5003,Endereço do remetente inválido.,Técnico,Verificar endereço.
+5004,Endereço do destinatário inválido.,Técnico,Verificar endereço.
+5005,Remetente não identificado.,Técnico,Identificar remetente.
+5006,Destinatário não identificado.,Técnico,Identificar destinatário.
+5007,Mensagem inconsistente ou incompleta.,Técnico,Revisar mensagem.
+5008,Espaço reservado para a caixa de saída insuficiente.,Técnico,Verificar caixa de saída.
+5009,Espaço reservado para a caixa de entrada insuficiente.,Técnico,Verificar caixa de entrada.
+5010,Envio de mensagem não foi terminado.,Técnico,Reenviar mensagem.
+5011,Envio de mensagem finalizada.,Técnico,Mensagem enviada com sucesso.
+5012,Recebimento de mensagem não finalizado.,Técnico,Reenviar mensagem.
+5013,Recebimento de mensagem finalizada.,Técnico,Mensagem recebida com sucesso.
+5014,Código HASH inválido. Mensagem pode estar corrompida.,Técnico,Reenviar mensagem.
+5015,Número de guias/demonstrativos dentro da mensagem superior ao tamanho máximo permitido.,Técnico,Dividir em lotes menores.
+5016,Sem nenhuma ocorrência de movimento de inclusão na competência para envio a ANS.,Técnico,Verificar movimentação.
+5017,Arquivo processado pela ANS.,Técnico,Processamento concluído.
+5018,Certificado digital inválido.,Técnico,Verificar certificado digital.
+5019,Certificado digital vencido.,Técnico,Renovar certificado digital.
+5020,Certificado digital revogado.,Técnico,Emitir novo certificado.
+5021,Cadeia de certificação inválida.,Técnico,Verificar cadeia de certificação.
+5022,Assinatura digital não confere.,Técnico,Verificar assinatura digital.
+5023,Competência não está liberada para envio de dados.,Técnico,Verificar competência liberada.
+5024,Operadora inativa na competência dos dados.,Técnico,Verificar situação da operadora.
+5025,Data de registro da transação inválida.,Técnico,Verificar data.
+5026,Hora de registro da transação inválida.,Técnico,Verificar hora.
+5027,Registro ANS da operadora inválido.,Técnico,Verificar registro ANS.
+5028,Versão do padrão inválida.,Técnico,Verificar versão do Padrão TISS.
+5029,Indicador inválido.,Técnico,Verificar indicador.
+5030,Código do município inválido.,Técnico,Verificar código IBGE do município.
+5031,Caráter de atendimento inválido.,Técnico,Verificar caráter do atendimento.
+5032,Indicador de recém-nato inválido.,Técnico,Verificar indicador.
+5033,Motivo de encerramento inválido.,Técnico,Verificar motivo.
+5034,Valor não informado.,Técnico,Informar valor.
+5035,Código da tabela de referência não informado.,Técnico,Informar tabela.
+5036,Código do grupo do procedimento inválido.,Técnico,Verificar grupo do procedimento.
+5037,Código do dente inválido.,Técnico,Verificar código do dente.
+5038,Código da região da boca inválido.,Técnico,Verificar região da boca.
+5039,Código da face do dente inválido.,Técnico,Verificar face do dente.
+5040,Valor deve ser maior que zero.,Técnico,Verificar valor informado.
+5041,Quantidade não informada.,Técnico,Informar quantidade.
+5042,Valor informado da guia diferente do somatório do valor informado dos itens.,Técnico,Conferir soma dos itens.
+5043,Motivo inválido.,Técnico,Verificar motivo.
+5044,Já existem informações na ANS para a competência informada.,Técnico,Verificar competência.
+5045,Competência anterior não enviada.,Técnico,Verificar envio de competências anteriores.
+5046,Competência inválida.,Técnico,Verificar competência.
