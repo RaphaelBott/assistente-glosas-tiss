@@ -18,3 +18,10 @@ Thumbs.db
 *.env
 .env
 .streamlit/secrets.toml
+
+# Banco de dados (vai pro Hugging Face)
+data/tiss.db
+
+# Arquivos brutos da ANS (muito grandes)
+data/tuss-*.csv
+data/procedimentos.csv

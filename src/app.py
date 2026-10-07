@@ -1,15 +1,16 @@
 """
 Tissê — Assistente de Glosas TISS
-Aplicação Streamlit que consulta a base de conhecimento local.
+Aplicação Streamlit que consulta a base de conhecimento via SQLite.
 
 Rode com: streamlit run src/app.py
 """
 
 import os
 import re
+import sqlite3
 import unicodedata
-import pandas as pd
 import streamlit as st
+from huggingface_hub import hf_hub_download
 
 from prompts import (
     PROMPT_SISTEMA,
@@ -29,7 +30,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# CARREGAMENTO DA BASE DE CONHECIMENTO
+# CARREGAMENTO DA BASE (SQLite via Hugging Face)
 # ============================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
@@ -38,31 +39,29 @@ PASTA_DATA = os.path.join(PROJECT_ROOT, "data")
 PASTA_DOCS = os.path.join(PROJECT_ROOT, "docs")
 
 
-@st.cache_data
-def carregar_base():
-    glosas = pd.read_csv(os.path.join(PASTA_DATA, "glosas.csv"))
-    status = pd.read_csv(os.path.join(PASTA_DATA, "status_solicitacao.csv"))
-    tabelas = pd.read_csv(os.path.join(PASTA_DATA, "tabelas_tiss.csv"))
+@st.cache_resource
+def baixar_banco():
+    caminho_local = os.path.join(PASTA_DATA, "tiss.db")
+    if os.path.exists(caminho_local):
+        return caminho_local
+    try:
+        caminho = hf_hub_download(
+            repo_id="RaphaBott/tiss-db",
+            filename="tiss.db",
+            repo_type="dataset",
+            local_dir=PASTA_DATA,
+        )
+        return caminho
+    except Exception as e:
+        st.error(f"Erro ao baixar o banco: {e}")
+        return None
 
-    # Tabela 22 — Procedimentos (separador ponto-e-vírgula)
-    procedimentos = pd.read_csv(
-        os.path.join(PASTA_DATA, "procedimentos.csv"),
-        sep=";",
-        encoding="utf-8-sig",
-    )
-    procedimentos = procedimentos.rename(columns={
-        "Código do Termo": "codigo",
-        "Termo": "termo",
-    })
-    procedimentos = procedimentos[["codigo", "termo"]].dropna()
-    # Força código a ser string sem ".0"
-    procedimentos["codigo"] = (
-        procedimentos["codigo"]
-        .astype(str)
-        .str.replace(r"\.0$", "", regex=True)
-    )
 
-    return glosas, status, tabelas, procedimentos
+def conectar_banco():
+    caminho = baixar_banco()
+    if caminho is None:
+        return None
+    return sqlite3.connect(caminho, check_same_thread=False)
 
 
 @st.cache_data
@@ -74,15 +73,14 @@ def carregar_processo_recurso():
     return ""
 
 
-glosas, status_solicitacao, tabelas_tiss, procedimentos = carregar_base()
+conn = conectar_banco()
 processo_recurso = carregar_processo_recurso()
 
 
 # ============================================================
-# FUNÇÕES UTILITÁRIAS
+# UTILITÁRIOS
 # ============================================================
 def normalizar(texto):
-    """Remove acentos, coloca em minúsculas e remove pontuação."""
     if not isinstance(texto, str):
         texto = str(texto)
     texto = unicodedata.normalize("NFKD", texto)
@@ -93,73 +91,139 @@ def normalizar(texto):
     return texto
 
 
+def dict_from_row(cursor, row):
+    colunas = [d[0] for d in cursor.description]
+    return dict(zip(colunas, row))
+
+
+def contar_registros(tabela):
+    if conn is None:
+        return 0
+    try:
+        cur = conn.cursor()
+        cur.execute(f"SELECT COUNT(*) FROM {tabela}")
+        return cur.fetchone()[0]
+    except Exception:
+        return 0
+
+
 # ============================================================
 # FUNÇÕES DE BUSCA
 # ============================================================
 def buscar_glosa_por_codigo(codigo):
-    codigo = str(codigo).strip()
-    resultado = glosas[glosas["codigo"].astype(str) == codigo]
-    if not resultado.empty:
-        return resultado.iloc[0]
-    return None
+    if conn is None:
+        return None
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM glosas WHERE codigo = ?", (str(codigo).strip(),))
+    row = cur.fetchone()
+    return dict_from_row(cur, row) if row else None
 
 
 def buscar_glosa_por_texto(pergunta, top_n=3):
+    if conn is None:
+        return []
     pergunta_norm = normalizar(pergunta)
     palavras = [p for p in pergunta_norm.split() if len(p) > 3]
     if not palavras:
         return []
-    resultados = []
-    for _, row in glosas.iterrows():
-        texto = normalizar(f"{row['descricao']} {row['categoria']} {row['observacao']}")
-        score = sum(1 for p in palavras if p in texto)
-        if score > 0:
-            resultados.append((score, row))
-    resultados.sort(key=lambda x: x[0], reverse=True)
-    return [r[1] for r in resultados[:top_n]]
+    cur = conn.cursor()
+    where = " OR ".join(["LOWER(descricao) LIKE ?"] * len(palavras))
+    params = [f"%{p}%" for p in palavras]
+    cur.execute(f"SELECT * FROM glosas WHERE {where} LIMIT ?", params + [top_n])
+    return [dict_from_row(cur, row) for row in cur.fetchall()]
 
 
 def buscar_status_por_codigo(codigo):
-    codigo = str(codigo).strip()
-    resultado = status_solicitacao[status_solicitacao["codigo"].astype(str) == codigo]
-    if not resultado.empty:
-        return resultado.iloc[0]
-    return None
+    if conn is None:
+        return None
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM status_solicitacao WHERE codigo = ?", (str(codigo).strip(),))
+    row = cur.fetchone()
+    return dict_from_row(cur, row) if row else None
 
 
 def buscar_tabela_por_codigo(codigo):
-    codigo = str(codigo).strip()
-    resultado = tabelas_tiss[tabelas_tiss["codigo"].astype(str) == codigo]
-    if not resultado.empty:
-        return resultado.iloc[0]
-    return None
+    if conn is None:
+        return None
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM tabelas_tiss WHERE codigo = ?", (str(codigo).strip(),))
+    row = cur.fetchone()
+    return dict_from_row(cur, row) if row else None
 
 
 def buscar_procedimento_por_codigo(codigo):
-    """Busca um procedimento TUSS pelo código exato."""
-    codigo = str(codigo).strip()
-    resultado = procedimentos[procedimentos["codigo"].astype(str) == codigo]
-    if not resultado.empty:
-        return resultado.iloc[0]
-    return None
+    if conn is None:
+        return None
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM procedimentos WHERE codigo = ?", (str(codigo).strip(),))
+    row = cur.fetchone()
+    return dict_from_row(cur, row) if row else None
 
 
-def buscar_procedimento_por_texto(pergunta, top_n=5):
-    """Busca procedimentos TUSS por similaridade de palavras."""
+def buscar_por_texto(tabela, pergunta, top_n=5):
+    if conn is None:
+        return []
     pergunta_norm = normalizar(pergunta)
     palavras = [p for p in pergunta_norm.split() if len(p) > 3]
     if not palavras:
         return []
+    cur = conn.cursor()
+    where = " OR ".join(["LOWER(termo) LIKE ?"] * len(palavras))
+    params = [f"%{p}%" for p in palavras]
+    cur.execute(f"SELECT * FROM {tabela} WHERE {where} LIMIT ?", params + [top_n])
+    return [dict_from_row(cur, row) for row in cur.fetchall()]
+
+
+def buscar_procedimento_por_texto(pergunta, top_n=5):
+    return buscar_por_texto("procedimentos", pergunta, top_n)
+
+
+def buscar_diaria_por_texto(pergunta, top_n=5):
+    return buscar_por_texto("diarias_taxas", pergunta, top_n)
+
+
+def buscar_medicamento_por_texto(pergunta, top_n=5):
+    return buscar_por_texto("medicamentos", pergunta, top_n)
+
+
+def buscar_material_por_texto(pergunta, top_n=5):
+    return buscar_por_texto("materiais_opme", pergunta, top_n)
+
+
+def buscar_em_todas_tabelas(pergunta, top_n=3):
+    if conn is None:
+        return []
+    pergunta_norm = normalizar(pergunta)
+    palavras = [p for p in pergunta_norm.split() if len(p) > 2]
+    if not palavras:
+        return []
+
+    tabelas = [
+        ("medicamentos", "Medicamento"),
+        ("materiais_opme", "Material/OPME"),
+        ("procedimentos", "Procedimento"),
+        ("diarias_taxas", "Diária/Taxa"),
+    ]
 
     resultados = []
-    for _, row in procedimentos.iterrows():
-        texto = normalizar(str(row["termo"]))
-        score = sum(1 for p in palavras if p in texto)
-        if score > 0:
-            resultados.append((score, row))
-
-    resultados.sort(key=lambda x: x[0], reverse=True)
-    return [r[1] for r in resultados[:top_n]]
+    for tabela, rotulo in tabelas:
+        cur = conn.cursor()
+        where = " OR ".join(["LOWER(termo) LIKE ?"] * len(palavras))
+        params = [f"%{p}%" for p in palavras]
+        try:
+            cur.execute(
+                f"SELECT codigo, termo FROM {tabela} WHERE {where} LIMIT ?",
+                params + [top_n],
+            )
+            for row in cur.fetchall():
+                resultados.append({
+                    "tabela": rotulo,
+                    "codigo": row[0],
+                    "termo": row[1],
+                })
+        except Exception:
+            continue
+    return resultados
 
 
 # ============================================================
@@ -179,61 +243,66 @@ def extrair_codigo_tabela(pergunta):
 
 
 def extrair_codigo_procedimento(pergunta):
-    """Extrai código de 8 dígitos (padrão TUSS de procedimentos)."""
     match = re.search(r"\b(\d{8})\b", pergunta)
     return match.group(1) if match else None
 
 
 def pergunta_eh_sobre_procedimento(pergunta):
-    """Verifica se a pergunta menciona termos relacionados a procedimentos."""
     pergunta_norm = normalizar(pergunta)
-    palavras_procedimento = [
-        "procedimento", "tuss", "exame", "consulta",
-        "cirurgia", "internacao", "internação", "terapia",
-    ]
-    return any(p in pergunta_norm for p in palavras_procedimento)
+    palavras = ["procedimento", "tuss", "exame", "consulta", "cirurgia", "internacao", "terapia"]
+    return any(p in pergunta_norm for p in palavras)
+
+
+def pergunta_eh_sobre_medicamento(pergunta):
+    pergunta_norm = normalizar(pergunta)
+    return any(p in pergunta_norm for p in ["medicamento", "remedio", "droga", "farmaco"])
+
+
+def pergunta_eh_sobre_material(pergunta):
+    pergunta_norm = normalizar(pergunta)
+    return any(p in pergunta_norm for p in ["material", "opme", "protese", "ortese", "stent"])
+
+
+def pergunta_eh_sobre_diaria(pergunta):
+    pergunta_norm = normalizar(pergunta)
+    return any(p in pergunta_norm for p in ["diaria", "taxa", "gas", "acomodacao"])
 
 
 # ============================================================
 # MONTAGEM DE CONTEXTO PARA A IA
 # ============================================================
 def montar_contexto(pergunta):
-    """Monta o contexto a partir da base local para enviar à IA."""
     pergunta_norm = normalizar(pergunta)
     partes = []
 
-    # 1. Processo de recurso
     palavras_processo = ["recurso", "recorrer", "prazo", "processo", "reanalise", "fluxo"]
     if any(p in pergunta_norm for p in palavras_processo):
         partes.append("### Processo de Recurso de Glosa\n" + processo_recurso[:3000])
 
-    # 2. Tabelas TISS
     if "tabela" in pergunta_norm:
         codigo_tab = extrair_codigo_tabela(pergunta) or extrair_codigo(pergunta)
         if codigo_tab:
             tab = buscar_tabela_por_codigo(codigo_tab)
-            if tab is not None:
-                partes.append(
-                    f"### Tabela {tab['codigo']} — {tab['descricao']}\n{tab['detalhe']}"
-                )
+            if tab:
+                partes.append(f"### Tabela {tab['codigo']} — {tab['descricao']}\n{tab['detalhe']}")
         else:
-            for _, row in tabelas_tiss.iterrows():
-                partes.append(f"- Tabela {row['codigo']}: {row['descricao']} — {row['detalhe']}")
+            if conn:
+                cur = conn.cursor()
+                cur.execute("SELECT * FROM tabelas_tiss")
+                for row in cur.fetchall():
+                    r = dict_from_row(cur, row)
+                    partes.append(f"- Tabela {r['codigo']}: {r['descricao']} — {r['detalhe']}")
 
-    # 3. Procedimentos TUSS (prioridade se a pergunta tem código de 8 dígitos)
     codigo_proc = extrair_codigo_procedimento(pergunta)
     if codigo_proc:
         proc = buscar_procedimento_por_codigo(codigo_proc)
-        if proc is not None:
-            partes.append(
-                f"### Procedimento TUSS {proc['codigo']}\nTermo: {proc['termo']}"
-            )
+        if proc:
+            partes.append(f"### Procedimento TUSS {proc['codigo']}\nTermo: {proc['termo']}")
 
-    # 4. Código de glosa ou status (4 dígitos)
     codigo = extrair_codigo(pergunta)
     if codigo and not codigo_proc:
         glosa = buscar_glosa_por_codigo(codigo)
-        if glosa is not None:
+        if glosa:
             partes.append(
                 f"### Glosa {glosa['codigo']}\n"
                 f"Descrição: {glosa['descricao']}\n"
@@ -242,27 +311,31 @@ def montar_contexto(pergunta):
             )
         else:
             status = buscar_status_por_codigo(codigo)
-            if status is not None:
-                partes.append(
-                    f"### Status {status['codigo']} — {status['descricao']}\n{status['detalhe']}"
-                )
+            if status:
+                partes.append(f"### Status {status['codigo']} — {status['descricao']}\n{status['detalhe']}")
 
-    # 5. Busca por texto livre em glosas
-    resultados = buscar_glosa_por_texto(pergunta, top_n=5)
-    for r in resultados:
+    for r in buscar_glosa_por_texto(pergunta, top_n=5):
         partes.append(
             f"### Glosa {r['codigo']} — {r['descricao']}\n"
             f"Categoria: {r['categoria']}\n"
             f"Observação: {r['observacao']}"
         )
 
-    # 6. Busca por texto livre em procedimentos
     if pergunta_eh_sobre_procedimento(pergunta):
-        resultados_proc = buscar_procedimento_por_texto(pergunta, top_n=5)
-        for r in resultados_proc:
-            partes.append(
-                f"### Procedimento TUSS {r['codigo']}\nTermo: {r['termo']}"
-            )
+        for r in buscar_procedimento_por_texto(pergunta, top_n=5):
+            partes.append(f"### Procedimento TUSS {r['codigo']}\nTermo: {r['termo']}")
+
+    if pergunta_eh_sobre_medicamento(pergunta):
+        for r in buscar_medicamento_por_texto(pergunta, top_n=5):
+            partes.append(f"### Medicamento TUSS {r['codigo']}\nTermo: {r['termo']}")
+
+    if pergunta_eh_sobre_material(pergunta):
+        for r in buscar_material_por_texto(pergunta, top_n=5):
+            partes.append(f"### Material/OPME TUSS {r['codigo']}\nTermo: {r['termo']}")
+
+    if pergunta_eh_sobre_diaria(pergunta):
+        for r in buscar_diaria_por_texto(pergunta, top_n=5):
+            partes.append(f"### Diária/Taxa TUSS {r['codigo']}\nTermo: {r['termo']}")
 
     return "\n\n".join(partes) if partes else ""
 
@@ -272,11 +345,8 @@ def montar_contexto(pergunta):
 # ============================================================
 def buscar_no_processo(pergunta):
     pergunta_norm = normalizar(pergunta)
-    palavras_processo = [
-        "recurso", "recorrer", "prazo", "processo", "reanalise",
-        "fluxo", "como funciona", "como recorrer"
-    ]
-    if any(p in pergunta_norm for p in palavras_processo):
+    palavras = ["recurso", "recorrer", "prazo", "processo", "reanalise", "fluxo", "como funciona"]
+    if any(p in pergunta_norm for p in palavras):
         return (
             "**Processo de Recurso de Glosa — Padrão TISS**\n\n"
             "**1. O que é:** Instrumento formal pelo qual o prestador contesta "
@@ -284,11 +354,9 @@ def buscar_no_processo(pergunta):
             "**2. Fluxo do processo:**\n"
             "- Prestador envia mensagem `RecursoGlosa` com justificativa (até 500 caracteres)\n"
             "- Operadora responde com `RecebimentoRecursoGlosa` (número de protocolo)\n"
-            "- Operadora analisa e responde com `RespostaRecursoGlosa`\n"
-            "- Resposta pode ser: acatar, não acatar, acatar parcialmente ou solicitar mais informações\n\n"
+            "- Operadora analisa e responde com `RespostaRecursoGlosa`\n\n"
             "**3. Prazos:**\n"
-            "- Prazo para solicitar reanálise: **180 dias** a partir do recebimento do demonstrativo (glosa 2907)\n"
-            "- Prazos podem variar conforme contrato — sempre verifique\n\n"
+            "- Prazo para solicitar reanálise: **180 dias** a partir do recebimento do demonstrativo (glosa 2907)\n\n"
             "**4. Boas práticas:**\n"
             "- Identifique o código da glosa e leia a descrição oficial\n"
             "- Reúna evidências (prescrição, laudo, nota fiscal, prontuário)\n"
@@ -304,107 +372,101 @@ def buscar_tabela_por_texto(pergunta):
     if "tabela" not in pergunta_norm:
         return None
 
-    codigo = extrair_codigo_tabela(pergunta)
-    if not codigo:
-        codigo = extrair_codigo(pergunta)
-
+    codigo = extrair_codigo_tabela(pergunta) or extrair_codigo(pergunta)
     if codigo:
         tab = buscar_tabela_por_codigo(codigo)
-        if tab is not None:
-            return (
-                f"**Tabela {tab['codigo']} — {tab['descricao']}**\n\n"
-                f"{tab['detalhe']}"
-            )
+        if tab:
+            return f"**Tabela {tab['codigo']} — {tab['descricao']}**\n\n{tab['detalhe']}"
 
-    linhas = ["**Tabelas de domínio do TISS (Tabela 87):**\n"]
-    for _, row in tabelas_tiss.iterrows():
-        linhas.append(f"- **{row['codigo']}** — {row['descricao']}")
-    linhas.append(
-        "\nDigite o código de uma tabela para mais detalhes (ex: 'o que é a tabela 22?')"
-    )
-    return "\n".join(linhas)
+    if conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM tabelas_tiss")
+        linhas = ["**Tabelas de domínio do TISS (Tabela 87):**\n"]
+        for row in cur.fetchall():
+            r = dict_from_row(cur, row)
+            linhas.append(f"- **{r['codigo']}** — {r['descricao']}")
+        linhas.append("\nDigite o código de uma tabela para mais detalhes.")
+        return "\n".join(linhas)
+    return None
 
 
 def gerar_resposta_local(pergunta):
-    """Gera resposta consultando a base local (sem IA)."""
     pergunta_norm = normalizar(pergunta)
 
-    # 1. Processo de recurso
-    resp_processo = buscar_no_processo(pergunta)
-    if resp_processo:
-        return resp_processo
+    resp = buscar_no_processo(pergunta)
+    if resp:
+        return resp
 
-    # 2. Tabelas TISS
-    resp_tabela = buscar_tabela_por_texto(pergunta)
-    if resp_tabela:
-        return resp_tabela
+    resp = buscar_tabela_por_texto(pergunta)
+    if resp:
+        return resp
 
-    # 3. Procedimento por código de 8 dígitos (prioridade)
     codigo_proc = extrair_codigo_procedimento(pergunta)
     if codigo_proc:
         proc = buscar_procedimento_por_codigo(codigo_proc)
-        if proc is not None:
-            return (
-                f"**Procedimento TUSS {proc['codigo']}**\n\n"
-                f"{proc['termo']}"
-            )
+        if proc:
+            return f"**Procedimento TUSS {proc['codigo']}**\n\n{proc['termo']}"
 
-    # 4. Glosa ou status por código de 4 dígitos
     codigo = extrair_codigo(pergunta)
     if codigo:
         glosa = buscar_glosa_por_codigo(codigo)
-        if glosa is not None:
+        if glosa:
             return (
                 f"**Glosa {glosa['codigo']} — {glosa['descricao']}**\n\n"
                 f"**Categoria:** {glosa['categoria']}\n\n"
-                f"**O que verificar:** {glosa['observacao']}\n\n"
-                f"**Próxima ação:** Revise as evidências relacionadas a essa categoria "
-                f"e, se aplicável, prepare o recurso de glosa conforme o Padrão TISS."
+                f"**O que verificar:** {glosa['observacao']}"
             )
-
         st_status = buscar_status_por_codigo(codigo)
-        if st_status is not None:
-            return (
-                f"**Status {st_status['codigo']} — {st_status['descricao']}**\n\n"
-                f"{st_status['detalhe']}"
-            )
+        if st_status:
+            return f"**Status {st_status['codigo']} — {st_status['descricao']}**\n\n{st_status['detalhe']}"
 
-        tab = buscar_tabela_por_codigo(codigo)
-        if tab is not None:
-            return (
-                f"**Tabela {tab['codigo']} — {tab['descricao']}**\n\n"
-                f"{tab['detalhe']}"
-            )
-
-    # 5. Busca por texto livre em procedimentos (se a pergunta for sobre procedimento)
     if pergunta_eh_sobre_procedimento(pergunta):
-        resultados_proc = buscar_procedimento_por_texto(pergunta, top_n=5)
-        if resultados_proc:
-            linhas = [f"Encontrei **{len(resultados_proc)}** procedimento(s) TUSS:\n"]
-            for r in resultados_proc:
+        res = buscar_procedimento_por_texto(pergunta, top_n=5)
+        if res:
+            linhas = [f"Encontrei **{len(res)}** procedimento(s) TUSS:\n"]
+            for r in res:
                 linhas.append(f"**{r['codigo']}** — {r['termo']}")
-            linhas.append(
-                "\nDigite o código completo (8 dígitos) para mais detalhes."
-            )
             return "\n".join(linhas)
 
-    # 6. Busca por texto livre em glosas
-    resultados = buscar_glosa_por_texto(pergunta)
-    if resultados:
-        linhas = [f"Encontrei **{len(resultados)}** resultado(s) na base:\n"]
-        for r in resultados:
-            linhas.append(
-                f"**Glosa {r['codigo']} — {r['descricao']}**\n"
-                f"- Categoria: {r['categoria']}\n"
-                f"- O que verificar: {r['observacao']}\n"
-            )
-        linhas.append(
-            "\nSe algum desses códigos for o que você procura, digite o número "
-            "para eu detalhar melhor."
-        )
+    if pergunta_eh_sobre_medicamento(pergunta):
+        res = buscar_medicamento_por_texto(pergunta, top_n=5)
+        if res:
+            linhas = [f"Encontrei **{len(res)}** medicamento(s) TUSS:\n"]
+            for r in res:
+                linhas.append(f"**{r['codigo']}** — {r['termo']}")
+            return "\n".join(linhas)
+
+    if pergunta_eh_sobre_material(pergunta):
+        res = buscar_material_por_texto(pergunta, top_n=5)
+        if res:
+            linhas = [f"Encontrei **{len(res)}** material(is) TUSS:\n"]
+            for r in res:
+                linhas.append(f"**{r['codigo']}** — {r['termo']}")
+            return "\n".join(linhas)
+
+    if pergunta_eh_sobre_diaria(pergunta):
+        res = buscar_diaria_por_texto(pergunta, top_n=5)
+        if res:
+            linhas = [f"Encontrei **{len(res)}** diária(s)/taxa(s) TUSS:\n"]
+            for r in res:
+                linhas.append(f"**{r['codigo']}** — {r['termo']}")
+            return "\n".join(linhas)
+
+    res = buscar_glosa_por_texto(pergunta)
+    if res:
+        linhas = [f"Encontrei **{len(res)}** glosa(s):\n"]
+        for r in res:
+            linhas.append(f"**Glosa {r['codigo']} — {r['descricao']}**")
         return "\n".join(linhas)
 
-    # 7. Fallback
+    resultados_universal = buscar_em_todas_tabelas(pergunta, top_n=3)
+    if resultados_universal:
+        linhas = [f"Encontrei **{len(resultados_universal)}** resultado(s):\n"]
+        for r in resultados_universal:
+            linhas.append(f"**[{r['tabela']}]** {r['codigo']} — {r['termo']}")
+        linhas.append("\nDigite o código completo para mais detalhes.")
+        return "\n".join(linhas)
+
     return PROMPT_FALLBACK.format(pergunta=pergunta)
 
 
@@ -412,7 +474,7 @@ def gerar_resposta_local(pergunta):
 # INTERFACE
 # ============================================================
 st.title("🏥 Tissê — Assistente de Glosas TISS")
-st.caption("Consulta de códigos de glosa, status, tabelas e procedimentos — Padrão TISS/ANS")
+st.caption("Consulta de glosas, procedimentos, medicamentos e materiais — Padrão TISS/ANS")
 
 with st.sidebar:
     st.header("ℹ️ Sobre o assistente")
@@ -421,10 +483,13 @@ with st.sidebar:
         "códigos de glosa, procedimentos TUSS e o processo de recurso."
     )
     st.markdown("**Base de conhecimento:**")
-    st.markdown(f"- 📋 {len(glosas)} códigos de glosa (Tabela 38)")
-    st.markdown(f"- 📊 {len(status_solicitacao)} status de solicitação (Tabela 45)")
-    st.markdown(f"- 📚 {len(tabelas_tiss)} tabelas de domínio (Tabela 87)")
-    st.markdown(f"- 🩺 {len(procedimentos)} procedimentos TUSS (Tabela 22)")
+    st.markdown(f"- 📋 {contar_registros('glosas')} códigos de glosa (Tabela 38)")
+    st.markdown(f"- 📊 {contar_registros('status_solicitacao')} status (Tabela 45)")
+    st.markdown(f"- 📚 {contar_registros('tabelas_tiss')} tabelas (Tabela 87)")
+    st.markdown(f"- 🩺 {contar_registros('procedimentos')} procedimentos (Tabela 22)")
+    st.markdown(f"- 💊 {contar_registros('medicamentos'):,} medicamentos (Tabela 20)")
+    st.markdown(f"- 🔧 {contar_registros('materiais_opme'):,} materiais (Tabela 19)")
+    st.markdown(f"- 💰 {contar_registros('diarias_taxas'):,} diárias/taxas (Tabela 18)")
 
     st.divider()
 
@@ -437,9 +502,9 @@ with st.sidebar:
 
     st.markdown("**Exemplos de perguntas:**")
     st.markdown("- O que significa a glosa 1703?")
-    st.markdown("- Como funciona o recurso de glosa?")
     st.markdown("- O que é o procedimento 10101012?")
-    st.markdown("- Consulta em consultório")
+    st.markdown("- Buscar rivaroxabana")
+    st.markdown("- Como funciona o recurso de glosa?")
 
     st.divider()
 
@@ -449,7 +514,6 @@ with st.sidebar:
             st.rerun()
 
 
-# Estado da conversa
 if "historico" not in st.session_state:
     st.session_state.historico = []
 
@@ -461,7 +525,7 @@ for msg in st.session_state.historico:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-pergunta = st.chat_input("Digite sua pergunta sobre glosas TISS...")
+pergunta = st.chat_input("Digite sua pergunta sobre TISS...")
 
 if pergunta:
     st.session_state.historico.append({"role": "user", "content": pergunta})
@@ -470,18 +534,35 @@ if pergunta:
 
     with st.chat_message("assistant"):
         with st.spinner("Consultando base de conhecimento..."):
-            contexto = montar_contexto(pergunta)
 
-            if ia_disponivel() and contexto:
-                resposta = gerar_resposta_ia(pergunta, contexto)
-                if resposta is None:
-                    resposta = gerar_resposta_local(pergunta)
-                    resposta = (
-                        "ℹ️ *A IA está sobrecarregada no momento. "
-                        "Respondendo com base local:*\n\n" + resposta
-                    )
-            else:
+            pergunta_norm = normalizar(pergunta)
+
+            # Busca local DIRETA para procedimentos, medicamentos e materiais
+            usar_local_direto = False
+
+            if pergunta_eh_sobre_procedimento(pergunta) and buscar_procedimento_por_texto(pergunta, top_n=1):
+                usar_local_direto = True
+            elif pergunta_eh_sobre_medicamento(pergunta) and buscar_medicamento_por_texto(pergunta, top_n=1):
+                usar_local_direto = True
+            elif pergunta_eh_sobre_material(pergunta) and buscar_material_por_texto(pergunta, top_n=1):
+                usar_local_direto = True
+            elif pergunta_eh_sobre_diaria(pergunta) and buscar_diaria_por_texto(pergunta, top_n=1):
+                usar_local_direto = True
+
+            if usar_local_direto:
                 resposta = gerar_resposta_local(pergunta)
+            else:
+                contexto = montar_contexto(pergunta)
+                if ia_disponivel() and contexto:
+                    resposta = gerar_resposta_ia(pergunta, contexto)
+                    if resposta is None:
+                        resposta = gerar_resposta_local(pergunta)
+                        resposta = (
+                            "ℹ️ *A IA está sobrecarregada no momento. "
+                            "Respondendo com base local:*\n\n" + resposta
+                        )
+                else:
+                    resposta = gerar_resposta_local(pergunta)
 
         st.markdown(resposta)
 

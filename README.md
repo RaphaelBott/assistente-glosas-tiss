@@ -106,14 +106,22 @@ Montagem da resposta (descrição + categoria + observação + próxima ação)
 
 ## 📋 Base de Conhecimento
 
+O Tissê consulta **7 tabelas oficiais da ANS** via banco de dados SQLite:
+
 | Fonte | Conteúdo | Tamanho |
 |---|---|---|
-| **Tabela 38** (ANS) | Códigos de glosa, negativas e outras | 527 códigos |
-| **Tabela 45** (ANS) | Status da solicitação | 7 códigos |
-| **Tabela 87** (ANS) | Tabelas de domínio do TISS | 7 tabelas |
-| **Tabela 22** (ANS) | Procedimentos e eventos em saúde (TUSS) | **5.907 procedimentos** |
-| **Padrão TISS** (Set/2022) | Processo de recurso, prazos e fluxos | Documento textual |
+| **Tabela 38** | Códigos de glosa, negativas e outras | 527 códigos |
+| **Tabela 45** | Status da solicitação | 7 códigos |
+| **Tabela 87** | Tabelas de domínio do TISS | 7 tabelas |
+| **Tabela 22** | Procedimentos e eventos em saúde | 5.997 códigos |
+| **Tabela 20** | Medicamentos | 43.368 códigos |
+| **Tabela 19** | Materiais e OPME | 1.388.103 códigos |
+| **Tabela 18** | Diárias, taxas e gases medicinais | 3.595 códigos |
+| **Padrão TISS** | Processo de recurso, prazos e fluxos | Documento textual |
 
+**Total: mais de 1,4 milhão de registros.**
+
+⚠️ **O banco de dados (163 MB) fica hospedado no [Hugging Face](https://huggingface.co/datasets/RaphaBott/tiss-db) e é baixado automaticamente na primeira execução.**
 ---
 
 ## 🚀 Como Rodar
