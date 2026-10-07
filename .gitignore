@@ -17,3 +17,4 @@ Thumbs.db
 # Dados sensíveis (se houver)
 *.env
 .env
+.streamlit/secrets.toml

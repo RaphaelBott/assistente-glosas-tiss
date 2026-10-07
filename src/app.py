@@ -31,11 +31,13 @@ st.set_page_config(
 # ============================================================
 # CARREGAMENTO DA BASE DE CONHECIMENTO
 # ============================================================
-PASTA_DATA = os.path.join(os.path.dirname(__file__), "..", "data")
-PASTA_DATA = os.path.abspath(PASTA_DATA)
+# Pega o diretório onde este arquivo (app.py) está
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Sobe um nível para chegar na raiz do projeto
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
 
-PASTA_DOCS = os.path.join(os.path.dirname(__file__), "..", "docs")
-PASTA_DOCS = os.path.abspath(PASTA_DOCS)
+PASTA_DATA = os.path.join(PROJECT_ROOT, "data")
+PASTA_DOCS = os.path.join(PROJECT_ROOT, "docs")
 
 
 @st.cache_data

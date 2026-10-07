@@ -5,11 +5,13 @@ Com timeout curto e fallback pra modo local.
 
 import os
 from google import genai
-from dotenv import load_dotenv
-
 from prompts import PROMPT_SISTEMA
 
-load_dotenv()
+# Tenta carregar o .env apenas se ele existir (para rodar localmente)
+# Na nuvem, as variáveis virão dos Secrets do Streamlit
+if os.path.exists(".env"):
+    from dotenv import load_dotenv
+    load_dotenv()
 
 API_KEY = os.getenv("GEMINI_API_KEY")
 MODELO = "gemini-flash-lite-latest"
