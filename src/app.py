@@ -11,12 +11,13 @@ import unicodedata
 import pandas as pd
 import streamlit as st
 
-# Importa os prompts do agente
 from prompts import (
     PROMPT_SISTEMA,
     PROMPT_FALLBACK,
     MENSAGEM_BOAS_VINDAS,
 )
+
+from ia import ia_disponivel, gerar_resposta_ia
 
 # ============================================================
 # CONFIGURAÇÃO DA PÁGINA
@@ -74,7 +75,6 @@ def normalizar(texto):
 
 
 def buscar_glosa_por_codigo(codigo):
-    """Busca uma glosa pelo código exato."""
     codigo = str(codigo).strip()
     resultado = glosas[glosas["codigo"].astype(str) == codigo]
     if not resultado.empty:
@@ -83,20 +83,16 @@ def buscar_glosa_por_codigo(codigo):
 
 
 def buscar_glosa_por_texto(pergunta, top_n=3):
-    """Busca glosas por similaridade de palavras."""
     pergunta_norm = normalizar(pergunta)
     palavras = [p for p in pergunta_norm.split() if len(p) > 3]
-
     if not palavras:
         return []
-
     resultados = []
     for _, row in glosas.iterrows():
         texto = normalizar(f"{row['descricao']} {row['categoria']} {row['observacao']}")
         score = sum(1 for p in palavras if p in texto)
         if score > 0:
             resultados.append((score, row))
-
     resultados.sort(key=lambda x: x[0], reverse=True)
     return [r[1] for r in resultados[:top_n]]
 
@@ -121,10 +117,6 @@ def buscar_tabela_por_codigo(codigo):
 # EXTRAÇÃO DE CÓDIGOS
 # ============================================================
 def extrair_codigo(pergunta, tamanhos=(4,)):
-    """Extrai código numérico da pergunta.
-
-    tamanhos: tupla com os tamanhos de código aceitos (ex: (4,) ou (2, 4)).
-    """
     for tam in tamanhos:
         match = re.search(rf"\b(\d{{{tam}}})\b", pergunta)
         if match:
@@ -133,23 +125,75 @@ def extrair_codigo(pergunta, tamanhos=(4,)):
 
 
 def extrair_codigo_tabela(pergunta):
-    """Extrai código de tabela (2 a 4 dígitos) quando a pergunta menciona 'tabela'."""
     match = re.search(r"tabela\s+(\d{2,4})", pergunta, re.IGNORECASE)
     return match.group(1) if match else None
 
 
 # ============================================================
-# GERAÇÃO DE RESPOSTA (modo local, sem IA)
+# MONTAGEM DE CONTEXTO PARA A IA
+# ============================================================
+def montar_contexto(pergunta):
+    """Monta o contexto a partir da base local para enviar à IA."""
+    pergunta_norm = normalizar(pergunta)
+    partes = []
+
+    # 1. Processo de recurso
+    palavras_processo = ["recurso", "recorrer", "prazo", "processo", "reanalise", "fluxo"]
+    if any(p in pergunta_norm for p in palavras_processo):
+        partes.append("### Processo de Recurso de Glosa\n" + processo_recurso[:3000])
+
+    # 2. Tabelas TISS
+    if "tabela" in pergunta_norm:
+        codigo_tab = extrair_codigo_tabela(pergunta) or extrair_codigo(pergunta)
+        if codigo_tab:
+            tab = buscar_tabela_por_codigo(codigo_tab)
+            if tab is not None:
+                partes.append(
+                    f"### Tabela {tab['codigo']} — {tab['descricao']}\n{tab['detalhe']}"
+                )
+        else:
+            for _, row in tabelas_tiss.iterrows():
+                partes.append(f"- Tabela {row['codigo']}: {row['descricao']} — {row['detalhe']}")
+
+    # 3. Código de glosa ou status
+    codigo = extrair_codigo(pergunta)
+    if codigo:
+        glosa = buscar_glosa_por_codigo(codigo)
+        if glosa is not None:
+            partes.append(
+                f"### Glosa {glosa['codigo']}\n"
+                f"Descrição: {glosa['descricao']}\n"
+                f"Categoria: {glosa['categoria']}\n"
+                f"Observação: {glosa['observacao']}"
+            )
+        else:
+            status = buscar_status_por_codigo(codigo)
+            if status is not None:
+                partes.append(
+                    f"### Status {status['codigo']} — {status['descricao']}\n{status['detalhe']}"
+                )
+
+    # 4. Busca por texto livre em glosas
+    resultados = buscar_glosa_por_texto(pergunta, top_n=5)
+    for r in resultados:
+        partes.append(
+            f"### Glosa {r['codigo']} — {r['descricao']}\n"
+            f"Categoria: {r['categoria']}\n"
+            f"Observação: {r['observacao']}"
+        )
+
+    return "\n\n".join(partes) if partes else ""
+
+
+# ============================================================
+# RESPOSTA LOCAL (SEM IA)
 # ============================================================
 def buscar_no_processo(pergunta):
-    """Detecta se a pergunta é sobre o processo de recurso de glosa."""
     pergunta_norm = normalizar(pergunta)
-
     palavras_processo = [
         "recurso", "recorrer", "prazo", "processo", "reanalise",
         "fluxo", "como funciona", "como recorrer"
     ]
-
     if any(p in pergunta_norm for p in palavras_processo):
         return (
             "**Processo de Recurso de Glosa — Padrão TISS**\n\n"
@@ -170,21 +214,15 @@ def buscar_no_processo(pergunta):
             "- Respeite o prazo\n\n"
             "**Para detalhes completos, consulte a documentação em `docs/processo_recurso.md`.**"
         )
-
     return None
 
 
 def buscar_tabela_por_texto(pergunta):
-    """Detecta se a pergunta é sobre uma tabela TISS."""
     pergunta_norm = normalizar(pergunta)
-
     if "tabela" not in pergunta_norm:
         return None
 
-    # Tenta extrair código de tabela (2 a 4 dígitos após a palavra "tabela")
     codigo = extrair_codigo_tabela(pergunta)
-
-    # Se não achou, tenta o extrair_codigo normal (4 dígitos)
     if not codigo:
         codigo = extrair_codigo(pergunta)
 
@@ -196,7 +234,6 @@ def buscar_tabela_por_texto(pergunta):
                 f"{tab['detalhe']}"
             )
 
-    # Sem código: lista todas as tabelas
     linhas = ["**Tabelas de domínio do TISS (Tabela 87):**\n"]
     for _, row in tabelas_tiss.iterrows():
         linhas.append(f"- **{row['codigo']}** — {row['descricao']}")
@@ -208,19 +245,14 @@ def buscar_tabela_por_texto(pergunta):
 
 def gerar_resposta_local(pergunta):
     """Gera resposta consultando a base local (sem IA)."""
-    pergunta_norm = normalizar(pergunta)
-
-    # --- 1. Processo de recurso ---
     resp_processo = buscar_no_processo(pergunta)
     if resp_processo:
         return resp_processo
 
-    # --- 2. Tabelas TISS ---
     resp_tabela = buscar_tabela_por_texto(pergunta)
     if resp_tabela:
         return resp_tabela
 
-    # --- 3. Código numérico direto (glosa, status ou tabela) ---
     codigo = extrair_codigo(pergunta)
     if codigo:
         glosa = buscar_glosa_por_codigo(codigo)
@@ -247,9 +279,7 @@ def gerar_resposta_local(pergunta):
                 f"{tab['detalhe']}"
             )
 
-    # --- 4. Busca por texto livre em glosas ---
     resultados = buscar_glosa_por_texto(pergunta)
-
     if resultados:
         linhas = [f"Encontrei **{len(resultados)}** resultado(s) na base:\n"]
         for r in resultados:
@@ -264,7 +294,6 @@ def gerar_resposta_local(pergunta):
         )
         return "\n".join(linhas)
 
-    # --- 5. Fallback ---
     return PROMPT_FALLBACK.format(pergunta=pergunta)
 
 
@@ -287,6 +316,13 @@ with st.sidebar:
 
     st.divider()
 
+    if ia_disponivel():
+        st.success("🤖 Modo IA ativado (Gemini)")
+    else:
+        st.warning("⚠️ Modo local (sem IA)")
+
+    st.divider()
+
     st.markdown("**Exemplos de perguntas:**")
     st.markdown("- O que significa a glosa 1703?")
     st.markdown("- Como funciona o recurso de glosa?")
@@ -294,6 +330,7 @@ with st.sidebar:
     st.markdown("- Glosa 1809")
 
     st.divider()
+
     if "historico" in st.session_state:
         if st.button("🗑️ Limpar conversa"):
             st.session_state.historico = []
@@ -304,27 +341,36 @@ with st.sidebar:
 if "historico" not in st.session_state:
     st.session_state.historico = []
 
-# Mensagem de boas-vindas
 if not st.session_state.historico:
     with st.chat_message("assistant"):
         st.markdown(MENSAGEM_BOAS_VINDAS)
 
-# Renderiza histórico
 for msg in st.session_state.historico:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# Campo de entrada
 pergunta = st.chat_input("Digite sua pergunta sobre glosas TISS...")
 
 if pergunta:
-    # Adiciona pergunta do usuário
     st.session_state.historico.append({"role": "user", "content": pergunta})
     with st.chat_message("user"):
         st.markdown(pergunta)
 
-    # Gera resposta
-    resposta = gerar_resposta_local(pergunta)
-    st.session_state.historico.append({"role": "assistant", "content": resposta})
     with st.chat_message("assistant"):
+        with st.spinner("Consultando base de conhecimento..."):
+            contexto = montar_contexto(pergunta)
+
+            if ia_disponivel() and contexto:
+                resposta = gerar_resposta_ia(pergunta, contexto)
+                if resposta is None:
+                    resposta = gerar_resposta_local(pergunta)
+                    resposta = (
+                        "ℹ️ *A IA está sobrecarregada no momento. "
+                        "Respondendo com base local:*\n\n" + resposta
+                    )
+            else:
+                resposta = gerar_resposta_local(pergunta)
+
         st.markdown(resposta)
+
+    st.session_state.historico.append({"role": "assistant", "content": resposta})

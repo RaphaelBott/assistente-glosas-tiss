@@ -43,12 +43,34 @@ assistente-glosas-tiss/
 │   └── tabelas_tiss.csv          # Tabela 87 — Tabelas de domínio do TISS
 ├── docs/                          # Documentação do agente
 │   ├── especificacao.md          # Definição do agente (objetivo, escopo, comportamento)
-│   └── processo_recurso.md       # Resumo do processo de recurso de glosa
+│   ├── processo_recurso.md       # Resumo do processo de recurso de glosa
+│   └── testes.md                 # Registro de testes realizados
 └── src/                           # Código da aplicação
     ├── gerar_base.py             # Script que gera os CSVs da base
     ├── prompts.py                # Prompts do agente
+    ├── ia.py                     # Integração com IA (Gemini)
     └── app.py                    # Aplicação Streamlit
 ```
+
+---
+
+## 🛡️ Resiliência e Fallback
+
+O Tissê foi projetado para **nunca travar**, mesmo se a API de IA estiver indisponível.
+
+**Como funciona:**
+
+1. **Tenta usar a IA primeiro** (Gemini) — resposta mais natural e contextual
+2. **Se a IA falhar ou demorar mais de 15s**, cai automaticamente para o **modo local**
+3. **O modo local** consulta a base estruturada e retorna a informação oficial
+
+**Por que isso importa:**
+
+- APIs de IA podem ficar indisponíveis (erro 503, timeout, etc.)
+- Em produção, um assistente que trava é inútil
+- O fallback garante **disponibilidade contínua** com informação confiável
+
+O usuário é avisado quando o modo local é usado, para saber que a resposta não veio da IA generativa.
 
 ---
 
@@ -122,7 +144,17 @@ python src/gerar_base.py
 
 Isso cria os arquivos `glosas.csv`, `status_solicitacao.csv` e `tabelas_tiss.csv` dentro de `data/`.
 
-### 5. Rodar a aplicação
+### 5. Configurar a chave da IA (opcional)
+
+Cria um arquivo `.env` na raiz do projeto com:
+
+```
+GEMINI_API_KEY=sua_chave_aqui
+```
+
+Sem essa chave, o assistente funciona em **modo local** (busca na base). Com ela, usa a IA do Gemini para respostas mais naturais.
+
+### 6. Rodar a aplicação
 
 ```bash
 streamlit run src/app.py
@@ -156,6 +188,7 @@ O agente foi avaliado com base nos seguintes critérios:
 | **Cobertura** | % de perguntas comuns de analistas respondidas | ✅ > 80% |
 | **Clareza** | Resposta é compreensível para um novato | ✅ Avaliação qualitativa positiva |
 | **Honestidade** | Admite quando não sabe | ✅ 100% (fallback funciona) |
+| **Disponibilidade** | Funciona mesmo com a IA fora do ar | ✅ Fallback local ativo |
 
 ### Testes realizados
 
@@ -165,21 +198,24 @@ O agente foi avaliado com base nos seguintes critérios:
 - ✅ Consulta sobre processo (`como funciona o recurso de glosa?`)
 - ✅ Consulta sobre tabelas (`o que é a tabela 22?`)
 - ✅ Pergunta fora do escopo (`qual a capital da França?`)
+- ✅ Fallback automático quando a IA está indisponível
 
 ---
 
 ## ⚠️ Limitações Conhecidas
 
-- **Modo offline:** o assistente roda com busca local (sem IA generativa). Isso garante que ele **nunca inventa** respostas, mas limita a flexibilidade das respostas.
+- **Dependência de API externa:** quando a IA do Gemini está sobrecarregada (erro 503), o assistente cai pro modo local. As respostas ficam mais diretas, mas continuam corretas.
 - **Cobertura de glosas:** a base cobre os ~300 códigos mais comuns da Tabela 38. A tabela completa tem ~400.
 - **Sem consulta à Tabela 22 completa:** o assistente **não consulta os 10.000+ códigos TUSS** de procedimentos — apenas explica o que a tabela é.
 - **Sem integração com sistemas internos:** o assistente não acessa Tasy, Lucedata ou outros ERPs.
+- **Sem memória entre sessões:** cada conversa é independente; o histórico é apagado ao fechar a página.
 
 ---
 
 ## 🔮 Próximos Passos
 
-- [ ] Integrar com LLM (Gemini ou OpenAI) para respostas mais naturais
+- [x] Integrar com LLM (Gemini) para respostas mais naturais
+- [x] Implementar fallback local quando a IA estiver indisponível
 - [ ] Expandir a base de glosas para os ~400 códigos da Tabela 38
 - [ ] Adicionar consulta à Tabela 22 (procedimentos TUSS) via CSV oficial da ANS
 - [ ] Criar testes automatizados de perguntas e respostas
@@ -191,6 +227,7 @@ O agente foi avaliado com base nos seguintes critérios:
 
 - **Python 3.12**
 - **Streamlit** — interface web
+- **Google Gemini** — IA generativa (com fallback local)
 - **pandas** — manipulação dos dados
 - **CSV** — formato da base de conhecimento
 - **Markdown** — documentação
