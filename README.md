@@ -106,7 +106,7 @@ Montagem da resposta (descrição + categoria + observação + próxima ação)
 
 | Fonte | Conteúdo | Tamanho |
 |---|---|---|
-| **Tabela 38** (ANS) | Códigos de glosa, negativas e outras | ~300 códigos |
+| **Tabela 38** (ANS) | Códigos de glosa, negativas e outras | ~527 códigos |
 | **Tabela 45** (ANS) | Status da solicitação | 7 códigos |
 | **Tabela 87** (ANS) | Tabelas de domínio do TISS | 7 tabelas |
 | **Padrão TISS** (Set/2022) | Processo de recurso, prazos e fluxos | Documento textual |
