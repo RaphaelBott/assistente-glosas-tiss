@@ -1,4 +1,6 @@
-streamlit
-pandas
+streamlit>=1.30.0
+pandas>=2.0.0
 google-genai
 python-dotenv
+huggingface_hub
+pysqlite3-binary
