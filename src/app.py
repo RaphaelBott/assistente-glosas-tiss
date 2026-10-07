@@ -171,15 +171,21 @@ def buscar_por_texto(tabela, pergunta, top_n=10):
         return []
 
     cur = conn.cursor()
-    where = " OR ".join(["termo_norm LIKE ?"] * len(palavras))
-    params = [f"%{p}%" for p in palavras]
+    # Busca no termo E na apresentação (se existir)
+    condicoes = []
+    params = []
+    for p in palavras:
+        condicoes.append("termo_norm LIKE ?")
+        params.append(f"%{p}%")
+
+    where = " OR ".join(condicoes)
 
     try:
         cur.execute(
-            f"SELECT codigo, termo FROM {tabela} WHERE {where} LIMIT ?",
+            f"SELECT * FROM {tabela} WHERE {where} LIMIT ?",
             params + [top_n],
         )
-        return [{"codigo": row[0], "termo": row[1]} for row in cur.fetchall()]
+        return [dict_from_row(cur, row) for row in cur.fetchall()]
     except Exception:
         return []
 
@@ -206,16 +212,15 @@ def buscar_em_todas_tabelas(pergunta, top_n=5):
         where = " OR ".join(["termo_norm LIKE ?"] * len(palavras))
         params = [f"%{p}%" for p in palavras]
         try:
+            # SELECT * pra pegar todas as colunas (incluindo extras_apresentacao)
             cur.execute(
-                f"SELECT codigo, termo FROM {tabela} WHERE {where} LIMIT ?",
+                f"SELECT * FROM {tabela} WHERE {where} LIMIT ?",
                 params + [top_n],
             )
             for row in cur.fetchall():
-                resultados.append({
-                    "tabela": rotulo,
-                    "codigo": row[0],
-                    "termo": row[1],
-                })
+                r = dict_from_row(cur, row)
+                r["tabela"] = rotulo
+                resultados.append(r)
         except Exception:
             continue
     return resultados
@@ -405,7 +410,12 @@ def formatar_lista(res, rotulo, dica=""):
     """Formata uma lista de resultados para exibir no chat."""
     linhas = [f"Encontrei **{len(res)}** {rotulo}:\n"]
     for r in res:
-        linhas.append(f"**{r['codigo']}** — {r['termo']}")
+        # Se tem apresentação, mostra entre parênteses
+        apresentacao = r.get("extras_apresentacao")
+        if apresentacao and isinstance(apresentacao, str) and apresentacao.strip():
+            linhas.append(f"**{r['codigo']}** — {r['termo']} ({apresentacao})")
+        else:
+            linhas.append(f"**{r['codigo']}** — {r['termo']}")
     if dica:
         linhas.append(f"\n{dica}")
     else:
@@ -485,12 +495,16 @@ def gerar_resposta_local(pergunta):
             linhas.append(f"**Glosa {r['codigo']} — {r['descricao']}**")
         return "\n".join(linhas)
 
-    # 10. Busca universal
+       # 10. Busca universal
     resultados_universal = buscar_em_todas_tabelas(pergunta, top_n=5)
     if resultados_universal:
         linhas = [f"Encontrei **{len(resultados_universal)}** resultado(s):\n"]
         for r in resultados_universal:
-            linhas.append(f"**[{r['tabela']}]** {r['codigo']} — {r['termo']}")
+            apresentacao = r.get("extras_apresentacao")
+            if apresentacao and isinstance(apresentacao, str) and apresentacao.strip():
+                linhas.append(f"**[{r['tabela']}]** {r['codigo']} — {r['termo']} ({apresentacao})")
+            else:
+                linhas.append(f"**[{r['tabela']}]** {r['codigo']} — {r['termo']}")
         linhas.append("\nDigite o código completo para mais detalhes.")
         return "\n".join(linhas)
 

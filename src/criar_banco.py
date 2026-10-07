@@ -158,12 +158,21 @@ def processar_tuss_generico(conn, padrao_nome, nome_tabela):
         "display_name": "termo",
     })
 
-    colunas_desejadas = ["codigo", "termo"]
-    df_final = df_final[[c for c in colunas_desejadas if c in df_final.columns]]
+       # Guarda TODAS as colunas extras que existirem
+    colunas_uteis = ["codigo", "termo", "extras_laboratorio", "extras_apresentacao",
+                     "extras_modelo", "extras_fabricante", "extras_classe_risco",
+                     "extras_registro_anvisa"]
+    colunas_presentes = [c for c in colunas_uteis if c in df_final.columns]
+    df_final = df_final[colunas_presentes]
     df_final = df_final.dropna(subset=["codigo"])
 
     # Cria coluna normalizada (sem acentos, minúscula) para busca
     df_final["termo_norm"] = df_final["termo"].apply(normalizar)
+    # Normaliza TAMBÉM a apresentação (pra buscar por miligrama)
+    if "extras_apresentacao" in df_final.columns:
+        df_final["apresentacao_norm"] = df_final["extras_apresentacao"].apply(
+            lambda x: normalizar(x) if isinstance(x, str) else ""
+        )
 
     gravar_df(conn, df_final, nome_tabela)
     criar_indice(conn, nome_tabela)

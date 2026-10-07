@@ -25,3 +25,9 @@ data/tiss.db
 # Arquivos brutos da ANS (muito grandes)
 data/tuss-*.csv
 data/procedimentos.csv
+
+# Pasta de verificacao temporaria
+verificacao/
+
+# Arquivo de teste temporario
+src/testar_hf.py
