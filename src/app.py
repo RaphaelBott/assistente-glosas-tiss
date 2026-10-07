@@ -1,5 +1,5 @@
 """
-Tissê — Assistente de Glosas TISS
+Tissê — Assistente TISS
 Aplicação Streamlit que consulta a base de conhecimento via SQLite.
 
 Rode com: streamlit run src/app.py
@@ -24,7 +24,7 @@ from ia import ia_disponivel, gerar_resposta_ia
 # CONFIGURAÇÃO DA PÁGINA
 # ============================================================
 st.set_page_config(
-    page_title="Tissê — Assistente de Glosas TISS",
+    page_title="Tissê — Assistente TISS",
     page_icon="🏥",
     layout="centered",
 )
@@ -81,6 +81,7 @@ processo_recurso = carregar_processo_recurso()
 # UTILITÁRIOS
 # ============================================================
 def normalizar(texto):
+    """Remove acentos, coloca em minúsculas e remove pontuação."""
     if not isinstance(texto, str):
         texto = str(texto)
     texto = unicodedata.normalize("NFKD", texto)
@@ -119,7 +120,7 @@ def buscar_glosa_por_codigo(codigo):
     return dict_from_row(cur, row) if row else None
 
 
-def buscar_glosa_por_texto(pergunta, top_n=3):
+def buscar_glosa_por_texto(pergunta, top_n=5):
     if conn is None:
         return []
     pergunta_norm = normalizar(pergunta)
@@ -160,37 +161,31 @@ def buscar_procedimento_por_codigo(codigo):
     return dict_from_row(cur, row) if row else None
 
 
-def buscar_por_texto(tabela, pergunta, top_n=5):
+def buscar_por_texto(tabela, pergunta, top_n=10):
+    """Busca genérica por texto usando a coluna normalizada (termo_norm)."""
     if conn is None:
         return []
     pergunta_norm = normalizar(pergunta)
-    palavras = [p for p in pergunta_norm.split() if len(p) > 3]
+    palavras = [p for p in pergunta_norm.split() if len(p) > 2]
     if not palavras:
         return []
+
     cur = conn.cursor()
-    where = " OR ".join(["LOWER(termo) LIKE ?"] * len(palavras))
+    where = " OR ".join(["termo_norm LIKE ?"] * len(palavras))
     params = [f"%{p}%" for p in palavras]
-    cur.execute(f"SELECT * FROM {tabela} WHERE {where} LIMIT ?", params + [top_n])
-    return [dict_from_row(cur, row) for row in cur.fetchall()]
+
+    try:
+        cur.execute(
+            f"SELECT codigo, termo FROM {tabela} WHERE {where} LIMIT ?",
+            params + [top_n],
+        )
+        return [{"codigo": row[0], "termo": row[1]} for row in cur.fetchall()]
+    except Exception:
+        return []
 
 
-def buscar_procedimento_por_texto(pergunta, top_n=5):
-    return buscar_por_texto("procedimentos", pergunta, top_n)
-
-
-def buscar_diaria_por_texto(pergunta, top_n=5):
-    return buscar_por_texto("diarias_taxas", pergunta, top_n)
-
-
-def buscar_medicamento_por_texto(pergunta, top_n=5):
-    return buscar_por_texto("medicamentos", pergunta, top_n)
-
-
-def buscar_material_por_texto(pergunta, top_n=5):
-    return buscar_por_texto("materiais_opme", pergunta, top_n)
-
-
-def buscar_em_todas_tabelas(pergunta, top_n=3):
+def buscar_em_todas_tabelas(pergunta, top_n=5):
+    """Busca em todas as tabelas TUSS de uma vez."""
     if conn is None:
         return []
     pergunta_norm = normalizar(pergunta)
@@ -208,7 +203,7 @@ def buscar_em_todas_tabelas(pergunta, top_n=3):
     resultados = []
     for tabela, rotulo in tabelas:
         cur = conn.cursor()
-        where = " OR ".join(["LOWER(termo) LIKE ?"] * len(palavras))
+        where = " OR ".join(["termo_norm LIKE ?"] * len(palavras))
         params = [f"%{p}%" for p in palavras]
         try:
             cur.execute(
@@ -224,6 +219,22 @@ def buscar_em_todas_tabelas(pergunta, top_n=3):
         except Exception:
             continue
     return resultados
+
+
+def buscar_procedimento_por_texto(pergunta, top_n=10):
+    return buscar_por_texto("procedimentos", pergunta, top_n)
+
+
+def buscar_diaria_por_texto(pergunta, top_n=10):
+    return buscar_por_texto("diarias_taxas", pergunta, top_n)
+
+
+def buscar_medicamento_por_texto(pergunta, top_n=10):
+    return buscar_por_texto("medicamentos", pergunta, top_n)
+
+
+def buscar_material_por_texto(pergunta, top_n=10):
+    return buscar_por_texto("materiais_opme", pergunta, top_n)
 
 
 # ============================================================
@@ -249,7 +260,7 @@ def extrair_codigo_procedimento(pergunta):
 
 def pergunta_eh_sobre_procedimento(pergunta):
     pergunta_norm = normalizar(pergunta)
-    palavras = ["procedimento", "tuss", "exame", "consulta", "cirurgia", "internacao", "terapia"]
+    palavras = ["procedimento", "exame", "consulta", "cirurgia", "internacao", "terapia"]
     return any(p in pergunta_norm for p in palavras)
 
 
@@ -322,19 +333,19 @@ def montar_contexto(pergunta):
         )
 
     if pergunta_eh_sobre_procedimento(pergunta):
-        for r in buscar_procedimento_por_texto(pergunta, top_n=5):
+        for r in buscar_procedimento_por_texto(pergunta, top_n=10):
             partes.append(f"### Procedimento TUSS {r['codigo']}\nTermo: {r['termo']}")
 
     if pergunta_eh_sobre_medicamento(pergunta):
-        for r in buscar_medicamento_por_texto(pergunta, top_n=5):
+        for r in buscar_medicamento_por_texto(pergunta, top_n=10):
             partes.append(f"### Medicamento TUSS {r['codigo']}\nTermo: {r['termo']}")
 
     if pergunta_eh_sobre_material(pergunta):
-        for r in buscar_material_por_texto(pergunta, top_n=5):
+        for r in buscar_material_por_texto(pergunta, top_n=10):
             partes.append(f"### Material/OPME TUSS {r['codigo']}\nTermo: {r['termo']}")
 
     if pergunta_eh_sobre_diaria(pergunta):
-        for r in buscar_diaria_por_texto(pergunta, top_n=5):
+        for r in buscar_diaria_por_texto(pergunta, top_n=10):
             partes.append(f"### Diária/Taxa TUSS {r['codigo']}\nTermo: {r['termo']}")
 
     return "\n\n".join(partes) if partes else ""
@@ -390,23 +401,39 @@ def buscar_tabela_por_texto(pergunta):
     return None
 
 
+def formatar_lista(res, rotulo, dica=""):
+    """Formata uma lista de resultados para exibir no chat."""
+    linhas = [f"Encontrei **{len(res)}** {rotulo}:\n"]
+    for r in res:
+        linhas.append(f"**{r['codigo']}** — {r['termo']}")
+    if dica:
+        linhas.append(f"\n{dica}")
+    else:
+        linhas.append("\nDigite o código completo para mais detalhes.")
+    return "\n".join(linhas)
+
+
 def gerar_resposta_local(pergunta):
     pergunta_norm = normalizar(pergunta)
 
+    # 1. Processo
     resp = buscar_no_processo(pergunta)
     if resp:
         return resp
 
+    # 2. Tabelas
     resp = buscar_tabela_por_texto(pergunta)
     if resp:
         return resp
 
+    # 3. Procedimento por código de 8 dígitos
     codigo_proc = extrair_codigo_procedimento(pergunta)
     if codigo_proc:
         proc = buscar_procedimento_por_codigo(codigo_proc)
         if proc:
             return f"**Procedimento TUSS {proc['codigo']}**\n\n{proc['termo']}"
 
+    # 4. Glosa ou status por código de 4 dígitos
     codigo = extrair_codigo(pergunta)
     if codigo:
         glosa = buscar_glosa_por_codigo(codigo)
@@ -420,38 +447,37 @@ def gerar_resposta_local(pergunta):
         if st_status:
             return f"**Status {st_status['codigo']} — {st_status['descricao']}**\n\n{st_status['detalhe']}"
 
+    # 5. Busca por procedimento
     if pergunta_eh_sobre_procedimento(pergunta):
-        res = buscar_procedimento_por_texto(pergunta, top_n=5)
+        res = buscar_procedimento_por_texto(pergunta, top_n=10)
         if res:
-            linhas = [f"Encontrei **{len(res)}** procedimento(s) TUSS:\n"]
-            for r in res:
-                linhas.append(f"**{r['codigo']}** — {r['termo']}")
-            return "\n".join(linhas)
+            return formatar_lista(
+                res, "procedimento(s) TUSS",
+                "Se não encontrou, tente ser mais específico (ex: 'consulta em domicílio')."
+            )
 
+    # 6. Busca por medicamento
     if pergunta_eh_sobre_medicamento(pergunta):
-        res = buscar_medicamento_por_texto(pergunta, top_n=5)
+        res = buscar_medicamento_por_texto(pergunta, top_n=10)
         if res:
-            linhas = [f"Encontrei **{len(res)}** medicamento(s) TUSS:\n"]
-            for r in res:
-                linhas.append(f"**{r['codigo']}** — {r['termo']}")
-            return "\n".join(linhas)
+            return formatar_lista(res, "medicamento(s) TUSS")
 
+    # 7. Busca por material
     if pergunta_eh_sobre_material(pergunta):
-        res = buscar_material_por_texto(pergunta, top_n=5)
+        res = buscar_material_por_texto(pergunta, top_n=10)
         if res:
-            linhas = [f"Encontrei **{len(res)}** material(is) TUSS:\n"]
-            for r in res:
-                linhas.append(f"**{r['codigo']}** — {r['termo']}")
-            return "\n".join(linhas)
+            return formatar_lista(res, "material(is) TUSS")
 
+    # 8. Busca por diária/taxa
     if pergunta_eh_sobre_diaria(pergunta):
-        res = buscar_diaria_por_texto(pergunta, top_n=5)
+        res = buscar_diaria_por_texto(pergunta, top_n=10)
         if res:
-            linhas = [f"Encontrei **{len(res)}** diária(s)/taxa(s) TUSS:\n"]
-            for r in res:
-                linhas.append(f"**{r['codigo']}** — {r['termo']}")
-            return "\n".join(linhas)
+            return formatar_lista(
+                res, "diária(s)/taxa(s) TUSS",
+                "Se não encontrou, tente ser mais específico (ex: 'taxa de ventilação')."
+            )
 
+    # 9. Busca por glosa (texto livre)
     res = buscar_glosa_por_texto(pergunta)
     if res:
         linhas = [f"Encontrei **{len(res)}** glosa(s):\n"]
@@ -459,7 +485,8 @@ def gerar_resposta_local(pergunta):
             linhas.append(f"**Glosa {r['codigo']} — {r['descricao']}**")
         return "\n".join(linhas)
 
-    resultados_universal = buscar_em_todas_tabelas(pergunta, top_n=3)
+    # 10. Busca universal
+    resultados_universal = buscar_em_todas_tabelas(pergunta, top_n=5)
     if resultados_universal:
         linhas = [f"Encontrei **{len(resultados_universal)}** resultado(s):\n"]
         for r in resultados_universal:
@@ -473,8 +500,8 @@ def gerar_resposta_local(pergunta):
 # ============================================================
 # INTERFACE
 # ============================================================
-st.title("🏥 Tissê — Assistente de Glosas TISS")
-st.caption("Consulta de glosas, procedimentos, medicamentos e materiais — Padrão TISS/ANS")
+st.title("🏥 Tissê — Assistente TISS")
+st.caption("Consulta de glosas, procedimentos, medicamentos, materiais e diárias — Padrão TISS/ANS")
 
 with st.sidebar:
     st.header("ℹ️ Sobre o assistente")
@@ -504,6 +531,7 @@ with st.sidebar:
     st.markdown("- O que significa a glosa 1703?")
     st.markdown("- O que é o procedimento 10101012?")
     st.markdown("- Buscar rivaroxabana")
+    st.markdown("- Taxa de ventilação")
     st.markdown("- Como funciona o recurso de glosa?")
 
     st.divider()
@@ -537,7 +565,7 @@ if pergunta:
 
             pergunta_norm = normalizar(pergunta)
 
-            # Busca local DIRETA para procedimentos, medicamentos e materiais
+            # Busca local DIRETA para procedimentos, medicamentos, materiais e diárias
             usar_local_direto = False
 
             if pergunta_eh_sobre_procedimento(pergunta) and buscar_procedimento_por_texto(pergunta, top_n=1):

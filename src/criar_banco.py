@@ -88,16 +88,24 @@ def processar_tabelas_tiss(conn):
 
 def processar_procedimentos(conn):
     """Tabela 22 — procedimentos (separador ponto-e-vírgula)."""
+    import csv
+    import unicodedata
+
     caminho = os.path.join(PASTA_DATA, "procedimentos.csv")
 
-    import csv
+    def normalizar(texto):
+        if not isinstance(texto, str):
+            texto = str(texto)
+        texto = unicodedata.normalize("NFKD", texto)
+        texto = texto.encode("ASCII", "ignore").decode("ASCII")
+        return texto.lower()
 
     linhas = []
     with open(caminho, "r", encoding="utf-8-sig", newline="") as f:
-        leitor = csv.reader(f, delimiter=";")   # ← CORRIGIDO: era "," e virou ";"
+        leitor = csv.reader(f, delimiter=";")
         for i, linha in enumerate(leitor):
             if i == 0:
-                continue  # pula o cabeçalho
+                continue
             if len(linha) >= 2:
                 linhas.append({
                     "codigo": linha[0].strip(),
@@ -108,18 +116,29 @@ def processar_procedimentos(conn):
     df = df.dropna(subset=["codigo", "termo"])
     df = df[df["codigo"] != ""]
     df["codigo"] = df["codigo"].astype(str).str.replace(r"\.0$", "", regex=True)
+    df["termo_norm"] = df["termo"].apply(normalizar)
 
     gravar_df(conn, df, "procedimentos")
     criar_indice(conn, "procedimentos")
+    criar_indice(conn, "procedimentos", "termo_norm")
 
 
 def processar_tuss_generico(conn, padrao_nome, nome_tabela):
     """Processa arquivos tuss-XX com formato padronizado."""
+    import unicodedata
+
     arquivos = sorted([f for f in os.listdir(PASTA_DATA) if f.startswith(padrao_nome) and f.endswith(".csv")])
 
     if not arquivos:
         print(f"  ⚠️ Nenhum arquivo encontrado para {padrao_nome}")
         return
+
+    def normalizar(texto):
+        if not isinstance(texto, str):
+            texto = str(texto)
+        texto = unicodedata.normalize("NFKD", texto)
+        texto = texto.encode("ASCII", "ignore").decode("ASCII")
+        return texto.lower()
 
     dfs = []
     for arq in arquivos:
@@ -139,13 +158,16 @@ def processar_tuss_generico(conn, padrao_nome, nome_tabela):
         "display_name": "termo",
     })
 
-    # Mantém só as colunas principais
     colunas_desejadas = ["codigo", "termo"]
     df_final = df_final[[c for c in colunas_desejadas if c in df_final.columns]]
     df_final = df_final.dropna(subset=["codigo"])
 
+    # Cria coluna normalizada (sem acentos, minúscula) para busca
+    df_final["termo_norm"] = df_final["termo"].apply(normalizar)
+
     gravar_df(conn, df_final, nome_tabela)
     criar_indice(conn, nome_tabela)
+    criar_indice(conn, nome_tabela, "termo_norm")
 
 
 # ============================================================
