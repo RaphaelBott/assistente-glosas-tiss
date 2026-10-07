@@ -1,5 +1,7 @@
 # 🏥 Tissê — Assistente de Glosas TISS
 
+🔗 **[Acesse o app online](https://tisse-glosas-tiss.streamlit.app/)**
+
 Assistente virtual com Inteligência Artificial para apoiar analistas de faturamento hospitalar na compreensão de códigos de glosa e no processo de recurso, com base no **Padrão TISS da ANS** (Agência Nacional de Saúde Suplementar).
 
 ---
