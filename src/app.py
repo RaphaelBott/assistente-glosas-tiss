@@ -31,9 +31,7 @@ st.set_page_config(
 # ============================================================
 # CARREGAMENTO DA BASE DE CONHECIMENTO
 # ============================================================
-# Pega o diretório onde este arquivo (app.py) está
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Sobe um nível para chegar na raiz do projeto
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
 
 PASTA_DATA = os.path.join(PROJECT_ROOT, "data")
@@ -45,7 +43,26 @@ def carregar_base():
     glosas = pd.read_csv(os.path.join(PASTA_DATA, "glosas.csv"))
     status = pd.read_csv(os.path.join(PASTA_DATA, "status_solicitacao.csv"))
     tabelas = pd.read_csv(os.path.join(PASTA_DATA, "tabelas_tiss.csv"))
-    return glosas, status, tabelas
+
+    # Tabela 22 — Procedimentos (separador ponto-e-vírgula)
+    procedimentos = pd.read_csv(
+        os.path.join(PASTA_DATA, "procedimentos.csv"),
+        sep=";",
+        encoding="utf-8-sig",
+    )
+    procedimentos = procedimentos.rename(columns={
+        "Código do Termo": "codigo",
+        "Termo": "termo",
+    })
+    procedimentos = procedimentos[["codigo", "termo"]].dropna()
+    # Força código a ser string sem ".0"
+    procedimentos["codigo"] = (
+        procedimentos["codigo"]
+        .astype(str)
+        .str.replace(r"\.0$", "", regex=True)
+    )
+
+    return glosas, status, tabelas, procedimentos
 
 
 @st.cache_data
@@ -57,12 +74,12 @@ def carregar_processo_recurso():
     return ""
 
 
-glosas, status_solicitacao, tabelas_tiss = carregar_base()
+glosas, status_solicitacao, tabelas_tiss, procedimentos = carregar_base()
 processo_recurso = carregar_processo_recurso()
 
 
 # ============================================================
-# FUNÇÕES DE BUSCA
+# FUNÇÕES UTILITÁRIAS
 # ============================================================
 def normalizar(texto):
     """Remove acentos, coloca em minúsculas e remove pontuação."""
@@ -76,6 +93,9 @@ def normalizar(texto):
     return texto
 
 
+# ============================================================
+# FUNÇÕES DE BUSCA
+# ============================================================
 def buscar_glosa_por_codigo(codigo):
     codigo = str(codigo).strip()
     resultado = glosas[glosas["codigo"].astype(str) == codigo]
@@ -115,6 +135,33 @@ def buscar_tabela_por_codigo(codigo):
     return None
 
 
+def buscar_procedimento_por_codigo(codigo):
+    """Busca um procedimento TUSS pelo código exato."""
+    codigo = str(codigo).strip()
+    resultado = procedimentos[procedimentos["codigo"].astype(str) == codigo]
+    if not resultado.empty:
+        return resultado.iloc[0]
+    return None
+
+
+def buscar_procedimento_por_texto(pergunta, top_n=5):
+    """Busca procedimentos TUSS por similaridade de palavras."""
+    pergunta_norm = normalizar(pergunta)
+    palavras = [p for p in pergunta_norm.split() if len(p) > 3]
+    if not palavras:
+        return []
+
+    resultados = []
+    for _, row in procedimentos.iterrows():
+        texto = normalizar(str(row["termo"]))
+        score = sum(1 for p in palavras if p in texto)
+        if score > 0:
+            resultados.append((score, row))
+
+    resultados.sort(key=lambda x: x[0], reverse=True)
+    return [r[1] for r in resultados[:top_n]]
+
+
 # ============================================================
 # EXTRAÇÃO DE CÓDIGOS
 # ============================================================
@@ -129,6 +176,22 @@ def extrair_codigo(pergunta, tamanhos=(4,)):
 def extrair_codigo_tabela(pergunta):
     match = re.search(r"tabela\s+(\d{2,4})", pergunta, re.IGNORECASE)
     return match.group(1) if match else None
+
+
+def extrair_codigo_procedimento(pergunta):
+    """Extrai código de 8 dígitos (padrão TUSS de procedimentos)."""
+    match = re.search(r"\b(\d{8})\b", pergunta)
+    return match.group(1) if match else None
+
+
+def pergunta_eh_sobre_procedimento(pergunta):
+    """Verifica se a pergunta menciona termos relacionados a procedimentos."""
+    pergunta_norm = normalizar(pergunta)
+    palavras_procedimento = [
+        "procedimento", "tuss", "exame", "consulta",
+        "cirurgia", "internacao", "internação", "terapia",
+    ]
+    return any(p in pergunta_norm for p in palavras_procedimento)
 
 
 # ============================================================
@@ -157,9 +220,18 @@ def montar_contexto(pergunta):
             for _, row in tabelas_tiss.iterrows():
                 partes.append(f"- Tabela {row['codigo']}: {row['descricao']} — {row['detalhe']}")
 
-    # 3. Código de glosa ou status
+    # 3. Procedimentos TUSS (prioridade se a pergunta tem código de 8 dígitos)
+    codigo_proc = extrair_codigo_procedimento(pergunta)
+    if codigo_proc:
+        proc = buscar_procedimento_por_codigo(codigo_proc)
+        if proc is not None:
+            partes.append(
+                f"### Procedimento TUSS {proc['codigo']}\nTermo: {proc['termo']}"
+            )
+
+    # 4. Código de glosa ou status (4 dígitos)
     codigo = extrair_codigo(pergunta)
-    if codigo:
+    if codigo and not codigo_proc:
         glosa = buscar_glosa_por_codigo(codigo)
         if glosa is not None:
             partes.append(
@@ -175,7 +247,7 @@ def montar_contexto(pergunta):
                     f"### Status {status['codigo']} — {status['descricao']}\n{status['detalhe']}"
                 )
 
-    # 4. Busca por texto livre em glosas
+    # 5. Busca por texto livre em glosas
     resultados = buscar_glosa_por_texto(pergunta, top_n=5)
     for r in resultados:
         partes.append(
@@ -183,6 +255,14 @@ def montar_contexto(pergunta):
             f"Categoria: {r['categoria']}\n"
             f"Observação: {r['observacao']}"
         )
+
+    # 6. Busca por texto livre em procedimentos
+    if pergunta_eh_sobre_procedimento(pergunta):
+        resultados_proc = buscar_procedimento_por_texto(pergunta, top_n=5)
+        for r in resultados_proc:
+            partes.append(
+                f"### Procedimento TUSS {r['codigo']}\nTermo: {r['termo']}"
+            )
 
     return "\n\n".join(partes) if partes else ""
 
@@ -247,14 +327,29 @@ def buscar_tabela_por_texto(pergunta):
 
 def gerar_resposta_local(pergunta):
     """Gera resposta consultando a base local (sem IA)."""
+    pergunta_norm = normalizar(pergunta)
+
+    # 1. Processo de recurso
     resp_processo = buscar_no_processo(pergunta)
     if resp_processo:
         return resp_processo
 
+    # 2. Tabelas TISS
     resp_tabela = buscar_tabela_por_texto(pergunta)
     if resp_tabela:
         return resp_tabela
 
+    # 3. Procedimento por código de 8 dígitos (prioridade)
+    codigo_proc = extrair_codigo_procedimento(pergunta)
+    if codigo_proc:
+        proc = buscar_procedimento_por_codigo(codigo_proc)
+        if proc is not None:
+            return (
+                f"**Procedimento TUSS {proc['codigo']}**\n\n"
+                f"{proc['termo']}"
+            )
+
+    # 4. Glosa ou status por código de 4 dígitos
     codigo = extrair_codigo(pergunta)
     if codigo:
         glosa = buscar_glosa_por_codigo(codigo)
@@ -281,6 +376,19 @@ def gerar_resposta_local(pergunta):
                 f"{tab['detalhe']}"
             )
 
+    # 5. Busca por texto livre em procedimentos (se a pergunta for sobre procedimento)
+    if pergunta_eh_sobre_procedimento(pergunta):
+        resultados_proc = buscar_procedimento_por_texto(pergunta, top_n=5)
+        if resultados_proc:
+            linhas = [f"Encontrei **{len(resultados_proc)}** procedimento(s) TUSS:\n"]
+            for r in resultados_proc:
+                linhas.append(f"**{r['codigo']}** — {r['termo']}")
+            linhas.append(
+                "\nDigite o código completo (8 dígitos) para mais detalhes."
+            )
+            return "\n".join(linhas)
+
+    # 6. Busca por texto livre em glosas
     resultados = buscar_glosa_por_texto(pergunta)
     if resultados:
         linhas = [f"Encontrei **{len(resultados)}** resultado(s) na base:\n"]
@@ -296,6 +404,7 @@ def gerar_resposta_local(pergunta):
         )
         return "\n".join(linhas)
 
+    # 7. Fallback
     return PROMPT_FALLBACK.format(pergunta=pergunta)
 
 
@@ -303,18 +412,19 @@ def gerar_resposta_local(pergunta):
 # INTERFACE
 # ============================================================
 st.title("🏥 Tissê — Assistente de Glosas TISS")
-st.caption("Consulta de códigos de glosa, status e processo de recurso — Padrão TISS/ANS")
+st.caption("Consulta de códigos de glosa, status, tabelas e procedimentos — Padrão TISS/ANS")
 
 with st.sidebar:
     st.header("ℹ️ Sobre o assistente")
     st.markdown(
         "O **Tissê** ajuda analistas de faturamento hospitalar a entender "
-        "códigos de glosa e o processo de recurso, com base no Padrão TISS da ANS."
+        "códigos de glosa, procedimentos TUSS e o processo de recurso."
     )
     st.markdown("**Base de conhecimento:**")
     st.markdown(f"- 📋 {len(glosas)} códigos de glosa (Tabela 38)")
     st.markdown(f"- 📊 {len(status_solicitacao)} status de solicitação (Tabela 45)")
     st.markdown(f"- 📚 {len(tabelas_tiss)} tabelas de domínio (Tabela 87)")
+    st.markdown(f"- 🩺 {len(procedimentos)} procedimentos TUSS (Tabela 22)")
 
     st.divider()
 
@@ -328,8 +438,8 @@ with st.sidebar:
     st.markdown("**Exemplos de perguntas:**")
     st.markdown("- O que significa a glosa 1703?")
     st.markdown("- Como funciona o recurso de glosa?")
-    st.markdown("- O que é a tabela 22?")
-    st.markdown("- Glosa 1809")
+    st.markdown("- O que é o procedimento 10101012?")
+    st.markdown("- Consulta em consultório")
 
     st.divider()
 

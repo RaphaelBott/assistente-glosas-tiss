@@ -108,9 +108,10 @@ Montagem da resposta (descrição + categoria + observação + próxima ação)
 
 | Fonte | Conteúdo | Tamanho |
 |---|---|---|
-| **Tabela 38** (ANS) | Códigos de glosa, negativas e outras | ~527 códigos |
+| **Tabela 38** (ANS) | Códigos de glosa, negativas e outras | 527 códigos |
 | **Tabela 45** (ANS) | Status da solicitação | 7 códigos |
 | **Tabela 87** (ANS) | Tabelas de domínio do TISS | 7 tabelas |
+| **Tabela 22** (ANS) | Procedimentos e eventos em saúde (TUSS) | **5.907 procedimentos** |
 | **Padrão TISS** (Set/2022) | Processo de recurso, prazos e fluxos | Documento textual |
 
 ---
@@ -175,7 +176,8 @@ O navegador abre automaticamente em `http://localhost:8501`.
 | `Como funciona o recurso de glosa?` | Resumo do processo + fluxo + prazos |
 | `Qual o prazo para recorrer de uma glosa?` | Informação sobre prazo de 180 dias (glosa 2907) |
 | `O que é a tabela 22?` | Definição da Tabela 22 (Procedimentos e eventos em saúde) |
-| `Glosa de material sem nota fiscal` | Busca por texto livre + sugestões de códigos |
+| `O que é o procedimento 10101012?` | Termo do procedimento TUSS (Consulta em consultório) |
+| `Procedimento 10101020` | Termo do procedimento TUSS (Consulta em domicílio) |
 | `Qual a capital da França?` | Fallback: admite que não sabe e redireciona |
 
 ---
